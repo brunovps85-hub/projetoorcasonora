@@ -3,6 +3,8 @@ import express from 'express';
 import cors from 'cors';
 import { createClient } from '@supabase/supabase-js';
 import rateLimit from 'express-rate-limit';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const requiredEnv = ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'ELEVENLABS_API_KEY'];
 const missingEnv = requiredEnv.filter((name) => !process.env[name]);
@@ -19,22 +21,27 @@ const allowedVoiceIds = new Set(
     .map((voiceId) => voiceId.trim())
     .filter(Boolean)
 );
+const requireAuth = process.env.TTS_REQUIRE_AUTH !== 'false';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
   auth: { persistSession: false, autoRefreshToken: false }
 });
 
 app.disable('x-powered-by');
-app.use(cors({
+
+const corsOptions = {
   origin(origin, callback) {
-    // Requests without an Origin header are not blocked by CORS, but still require a valid JWT.
+    // Same-origin/local requests without Origin are allowed; TTS still checks JWT by default.
     if (!origin || !frontendOrigin || origin === frontendOrigin) return callback(null, true);
     return callback(new Error('Origin not allowed'));
   },
-  methods: ['POST', 'GET'],
+  methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   maxAge: 600
-}));
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json({ limit: '16kb' }));
 
 const ttsRateLimit = rateLimit({
@@ -46,6 +53,8 @@ const ttsRateLimit = rateLimit({
 });
 
 async function requireSupabaseUser(req, res, next) {
+  if (!requireAuth) return next();
+
   const authorization = req.get('authorization') || '';
   const match = authorization.match(/^Bearer\s+(.+)$/i);
   if (!match) return res.status(401).json({ error: 'Autenticação necessária.' });
@@ -96,7 +105,6 @@ app.post('/api/tts', ttsRateLimit, requireSupabaseUser, async (req, res) => {
     );
 
     if (!upstream.ok) {
-      // Do not expose upstream response details or credentials to clients.
       console.error('ElevenLabs TTS request failed with status:', upstream.status);
       return res.status(502).json({ error: 'Falha ao gerar áudio. Tente novamente.' });
     }
@@ -114,6 +122,16 @@ app.post('/api/tts', ttsRateLimit, requireSupabaseUser, async (req, res) => {
   }
 });
 
+// A message for accidental GET requests helps distinguish the API route from a missing deployment.
+app.all('/api/tts', (_req, res) => {
+  res.set('Allow', 'POST, OPTIONS');
+  return res.status(405).json({ error: 'Use POST /api/tts para gerar áudio.' });
+});
+
+// Serve the static panel from this Express process when deployed at the same origin.
+// This makes the frontend's relative POST /api/tts URL resolve to this server.
+app.use(express.static(__dirname, { dotfiles: 'ignore', index: 'index.html' }));
+
 app.use((error, _req, res, _next) => {
   if (error.message === 'Origin not allowed') {
     return res.status(403).json({ error: 'Origem não permitida.' });
@@ -126,5 +144,5 @@ app.use((error, _req, res, _next) => {
 });
 
 app.listen(port, () => {
-  console.log(`Orca Sonora TTS API listening on port ${port}`);
+  console.log(`Orca Sonora web/API listening on port ${port}`);
 });
