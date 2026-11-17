@@ -4,8 +4,8 @@
 
 const ORCA_CONFIG = window.ORCA_CONFIG || {};
 
-const SUPABASE_URL = ORCA_CONFIG.supabaseUrl || "https://<SEU-PROJETO>.supabase.co";
-const SUPABASE_ANON_KEY = ORCA_CONFIG.supabaseAnonKey || "<PUBLIC-ANON-KEY-DO-SUPABASE>";
+const SUPABASE_URL = ORCA_CONFIG.supabaseUrl || "https://hffnxblzvathjtedoyoz.supabase.co";
+const SUPABASE_ANON_KEY = ORCA_CONFIG.supabaseAnonKey || "sb_publishable_PETXg6auyEFgcWYd1rR4rA_F1G5EHwA";
 const supabaseClient = window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY && !SUPABASE_URL.includes("<SEU-PROJETO>")
     ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
     : null;
