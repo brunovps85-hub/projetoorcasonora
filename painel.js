@@ -809,7 +809,6 @@ async function gerarAudioElevenLabsComVoz(texto, voiceIdEspecifico) {
     const client = ensureSupabaseClient();
     let token = "";
 
-    // Tenta pegar a sessão logada no Supabase (se houver)
     if (client) {
         const { data } = await client.auth.getSession();
         if (data?.session?.access_token) {
@@ -841,8 +840,7 @@ async function gerarAudioElevenLabsComVoz(texto, voiceIdEspecifico) {
     }
 
     return await response.blob();
-
-} 
+}
 
 async function gerarAudioElevenLabs(texto) {
     const seletorLocucao = document.getElementById("locucao-voz-padrao");
