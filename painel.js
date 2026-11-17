@@ -783,20 +783,32 @@ function prepararFaixa(indice, autoPlay = true) {
 }
 
 async function gerarAudioElevenLabsComVoz(texto, voiceIdEspecifico) {
-    const response = await fetch("/api/tts", {
+    const client = ensureSupabaseClient();
+    if (!client) {
+        throw new Error("Supabase não configurado no painel.");
+    }
+
+    // Passo 2: Obtém a sessão ativa do usuário logado no Supabase
+    const { data: { session }, error: sessionError } = await client.auth.getSession();
+    if (sessionError || !session?.access_token) {
+        throw new Error("Faça login para gerar locuções com IA.");
+    }
+
+    // Define a URL do backend (mesma origem /api/tts ou apiBaseUrl se configurado)
+    const baseUrl = (window.ORCA_CONFIG && window.ORCA_CONFIG.apiBaseUrl)
+        ? window.ORCA_CONFIG.apiBaseUrl.replace(/\/$/, "")
+        : "";
+
+    // Passo 3: Envia o token no cabeçalho Authorization: Bearer
+    const response = await fetch(`${baseUrl}/api/tts`, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${session.access_token}`
         },
         body: JSON.stringify({
             text: texto,
-            voiceId: voiceIdEspecifico,
-            modelId: "eleven_multilingual_v2",
-            voiceSettings: {
-                stability: 0.55,
-                similarity_boost: 0.85,
-                style: 0.15
-            }
+            voiceId: voiceIdEspecifico
         })
     });
 
@@ -807,11 +819,11 @@ async function gerarAudioElevenLabsComVoz(texto, voiceIdEspecifico) {
         } catch (_e) {
             erroJson = {};
         }
-        throw new Error(`Backend recusou gerar TTS: ${erroJson.detail?.message || response.status}`);
+        throw new Error(erroJson.error || `Erro no servidor ao gerar áudio (${response.status})`);
     }
 
     return await response.blob();
-}
+} 
 
 async function gerarAudioElevenLabs(texto) {
     const seletorLocucao = document.getElementById("locucao-voz-padrao");
