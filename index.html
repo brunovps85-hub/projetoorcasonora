@@ -1,0 +1,1955 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>Orca Sonora — Rádio Indoor Inteligente com IA</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#050505">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Orca Sonora">
+    <link rel="icon" type="image/png" href="logo-orca.jpg">
+    <link rel="apple-touch-icon" href="logo-orca.jpg">
+    
+    <!-- Fonte Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #0a0a0a;
+            --primary-dark: #262626;
+            --bg-dark: #050505;
+            --bg-surface: #121212;
+            --bg-light: #f5f5f5;
+            --text-main: #0a0a0a;
+            --text-muted: #525252;
+            --border: #e5e5e5;
+            --white: #ffffff;
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            color: var(--text-main);
+            background-color: var(--white);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .mt-40 {
+            margin-top: 40px;
+        }
+
+        /* Botões */
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 12px 22px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-block;
+            transition: all 0.25s ease;
+            border: 1px solid var(--primary);
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 10px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-block;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-ghost {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 14px;
+            transition: 0.2s;
+        }
+
+        .btn-ghost:hover {
+            opacity: 0.65;
+        }
+
+        .btn-white {
+            background-color: var(--white);
+            color: var(--bg-dark);
+            padding: 14px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 800;
+            display: inline-block;
+            transition: all 0.25s ease;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+        }
+
+        .btn-white:hover {
+            background-color: #efefef;
+            transform: translateY(-2px);
+        }
+
+        .btn-lg {
+            padding: 16px 32px;
+            font-size: 1.05rem;
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Cabeçalhos de Seção */
+        .section-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 48px;
+        }
+
+        .section-header .eyebrow {
+            color: var(--text-main);
+            background-color: var(--bg-light);
+            border: 1px solid var(--border);
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            letter-spacing: 0.06em;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .section-header h2 {
+            font-size: 2.2rem;
+            line-height: 1.25;
+            margin-bottom: 12px;
+            color: var(--text-main);
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.96);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 16px 0;
+        }
+
+        .nav-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+      .brand-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.65rem; /* Aumenta levemente o texto Orca Sonora para acompanhar a logo */
+}
+
+.brand-logo-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.footer-logo .brand-logo-img {
+    width: 56px;
+    height: 56px;
+}
+
+        .nav-menu {
+            display: flex;
+            gap: 24px;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: 0.2s;
+        }
+
+        .nav-menu a:hover {
+            color: var(--bg-dark);
+        }
+
+        .nav-buttons {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* HERO COM ONDAS DO MAR NO FUNDO */
+        .hero-section {
+            position: relative;
+            background: radial-gradient(circle at 80% 20%, #1c1c1c 0%, #050505 70%);
+            color: var(--white);
+            padding: 48px 0 140px;
+            overflow: hidden;
+        }
+
+        #ocean-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .hero-container-z {
+            position: relative;
+            z-index: 2;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #888888;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb a {
+            color: #888888;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--white);
+        }
+
+        .breadcrumb .current {
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.25fr 0.95fr;
+            gap: 48px;
+            align-items: center;
+        }
+
+        .pill-badge {
+            background-color: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: var(--white);
+            padding: 6px 14px;
+            border-radius: 99px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+
+        .hero-content h1 {
+            font-size: 2.6rem;
+            line-height: 1.18;
+            margin-bottom: 20px;
+            color: var(--white);
+        }
+
+        .hero-content h1 span {
+            color: #a3a3a3;
+            text-decoration: underline;
+            text-decoration-color: rgba(255, 255, 255, 0.35);
+            text-underline-offset: 6px;
+        }
+
+        .hero-subtitle {
+            color: #d4d4d4;
+            font-size: 1.08rem;
+            margin-bottom: 32px;
+        }
+
+        .hero-cta-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .cta-note {
+            font-size: 0.85rem;
+            color: #a3a3a3;
+        }
+
+        /* Player Card */
+        .live-player-card {
+            background-color: rgba(17, 17, 17, 0.92);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            border: 1px solid #2e2e2e;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85);
+        }
+
+        .player-top-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #a3a3a3;
+            margin-bottom: 20px;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge.live {
+            background-color: rgba(255, 255, 255, 0.12);
+            color: var(--white);
+            padding: 4px 10px;
+            border-radius: 99px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--white);
+            border-radius: 50%;
+            animation: pulse-orca 1.6s infinite;
+        }
+
+        @keyframes pulse-orca {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .track-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .album-art {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #ffffff 0%, #a3a3a3 100%);
+            color: #050505;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            flex-shrink: 0;
+        }
+
+        .track-details h3 {
+            font-size: 1.15rem;
+            color: var(--white);
+        }
+
+        .track-details p {
+            font-size: 0.9rem;
+            color: #a3a3a3;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background-color: #262626;
+            border-radius: 99px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--white);
+            border-radius: 99px;
+            transition: width 0.4s linear;
+        }
+
+        .time-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: #a3a3a3;
+            margin-bottom: 20px;
+        }
+
+        .player-footer-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tag-pill {
+            background-color: #1c1c1c;
+            border: 1px solid #2e2e2e;
+            color: #d4d4d4;
+            font-size: 0.78rem;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .tag-pill.highlight {
+            background-color: var(--white);
+            color: var(--bg-dark);
+            border-color: var(--white);
+        }
+
+        /* BLOCO 03 */
+        .pain-points-section {
+            padding: 80px 0;
+            background-color: var(--white);
+        }
+
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .text-block h2 {
+            font-size: 2rem;
+            margin-bottom: 16px;
+            line-height: 1.25;
+        }
+
+        .text-block p {
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            font-size: 1.02rem;
+        }
+
+        .problems-card {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+        }
+
+        .problems-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+        }
+
+        .problems-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+
+        .problem-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .problem-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .problem-list li span {
+            color: var(--bg-dark);
+            font-weight: 800;
+        }
+
+        /* BLOCO 04 */
+        .steps-section {
+            padding: 80px 0;
+            background-color: var(--bg-light);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+        }
+
+        .step-card {
+            background-color: var(--white);
+            padding: 32px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background-color: var(--bg-dark);
+            color: var(--white);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .step-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .step-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* BLOCO 05 */
+        .niche-solution-section {
+            padding: 80px 0;
+        }
+
+        .solution-box {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 40px;
+            background-color: var(--bg-dark);
+            color: var(--white);
+            padding: 48px;
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .solution-main h2 {
+            font-size: 1.9rem;
+            margin-bottom: 16px;
+            line-height: 1.25;
+        }
+
+        .solution-main p {
+            color: #d4d4d4;
+            margin-bottom: 16px;
+        }
+
+        .tips-box {
+            background-color: #141414;
+            padding: 28px;
+            border-radius: var(--radius);
+            border: 1px solid #2e2e2e;
+        }
+
+        .tips-box h3 {
+            font-size: 1.15rem;
+            margin-bottom: 16px;
+            color: var(--white);
+        }
+
+        .check-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 0.92rem;
+            color: #d4d4d4;
+        }
+
+        .check-list strong {
+            color: var(--white);
+        }
+
+        .info-card {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border);
+            padding: 28px;
+            border-radius: var(--radius);
+        }
+
+        .info-card h3 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .info-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* BLOCO 06 */
+        .features-section {
+            padding: 80px 0;
+            background-color: var(--bg-light);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .feature-item {
+            background-color: var(--white);
+            padding: 28px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            transition: border-color 0.2s ease;
+        }
+
+        .feature-item:hover {
+            border-color: var(--bg-dark);
+        }
+
+        .f-icon {
+            font-size: 1.8rem;
+            margin-bottom: 14px;
+            filter: grayscale(100%);
+        }
+
+        .feature-item h3 {
+            font-size: 1.15rem;
+            margin-bottom: 8px;
+        }
+
+        .feature-item p {
+            color: var(--text-muted);
+            font-size: 0.94rem;
+        }
+
+        /* BLOCO 07 */
+        .scripts-section {
+            padding: 80px 0;
+        }
+
+        .scripts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .script-card {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+        }
+
+        .script-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .script-tag {
+            background-color: var(--bg-dark);
+            color: var(--white);
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 6px;
+        }
+
+        .btn-play-sample {
+            background-color: var(--white);
+            border: 1px solid #cccccc;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-main);
+            transition: 0.2s;
+        }
+
+        .btn-play-sample:hover {
+            background-color: var(--bg-dark);
+            border-color: var(--bg-dark);
+            color: var(--white);
+        }
+
+        .script-card blockquote {
+            font-size: 1.05rem;
+            font-style: italic;
+            color: var(--text-main);
+            line-height: 1.55;
+        }
+
+        /* BLOCO 08 */
+        .pricing-section {
+            padding: 80px 0;
+            background-color: var(--bg-light);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .currency-pill {
+            display: inline-block;
+            background-color: var(--white);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 99px;
+            font-size: 0.88rem;
+            margin-top: 16px;
+        }
+
+        .pricing-grid.single-plan {
+            display: grid;
+            grid-template-columns: minmax(280px, 440px);
+            justify-content: center;
+        }
+
+        .plan-card {
+            background-color: var(--white);
+            border: 2px solid var(--bg-dark);
+            border-radius: 16px;
+            padding: 36px 32px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.12);
+        }
+
+        .plan-badge {
+            position: absolute;
+            top: -13px;
+            right: 24px;
+            background-color: var(--bg-dark);
+            color: var(--white);
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 99px;
+        }
+
+        .plan-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+        }
+
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.1;
+        }
+
+        .plan-price .currency {
+            font-size: 1.2rem;
+            vertical-align: super;
+            margin-right: 2px;
+        }
+
+        .plan-price .period {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .daily-cost {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .credits-box {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--bg-dark);
+            margin: 16px 0 24px;
+        }
+
+        .plan-features {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 32px;
+            flex-grow: 1;
+        }
+
+        .plan-features li strong {
+            display: block;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .plan-features li span {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* BLOCO 09 */
+        .faq-section {
+            padding: 80px 0;
+        }
+
+        .faq-container {
+            max-width: 800px;
+        }
+
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .faq-item {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            background-color: var(--white);
+        }
+
+        .faq-item summary {
+            font-weight: 700;
+            font-size: 1.05rem;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .faq-item summary::after {
+            content: "+";
+            font-size: 1.4rem;
+            color: var(--bg-dark);
+        }
+
+        .faq-item[open] summary::after {
+            content: "−";
+        }
+
+        .faq-item p {
+            margin-top: 12px;
+            color: var(--text-muted);
+            font-size: 0.96rem;
+        }
+
+        /* BLOCO 10 */
+        .final-cta-section {
+            padding: 40px 0 80px;
+        }
+
+        .cta-banner {
+            position: relative;
+            background-color: var(--bg-dark);
+            color: var(--white);
+            text-align: center;
+            padding: 64px 32px;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .cta-banner h2 {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .cta-banner p {
+            color: #d4d4d4;
+            margin-bottom: 28px;
+            font-size: 1.05rem;
+        }
+
+        /* BLOCO 11 */
+        .site-footer {
+            background-color: var(--bg-dark);
+            color: #a3a3a3;
+            padding-top: 60px;
+        }
+
+        .footer-grid {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 40px;
+            border-bottom: 1px solid #262626;
+            gap: 32px;
+        }
+
+    .footer-logo {
+    color: var(--white);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+        
+
+        .footer-logo span {
+            background-color: var(--white);
+            color: var(--bg-dark);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #d4d4d4;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--white);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding: 24px 0;
+            font-size: 0.85rem;
+        }
+
+        /* Evita zoom forçado no iPhone (iOS Safari) ao clicar em inputs */
+        input, select, textarea {
+            font-size: 16px !important;
+        }
+
+        /* RESPONSIVIDADE COMPLETA (PC + TABLET + CELULAR) */
+        @media (max-width: 900px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .hero-grid,
+            .two-col-grid,
+            .steps-grid,
+            .solution-box,
+            .features-grid,
+            .scripts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+
+            .brand-logo {
+                font-size: 1.25rem;
+            }
+
+            .nav-buttons {
+                gap: 6px;
+            }
+
+            .nav-buttons .btn-ghost {
+                padding: 8px 10px;
+                font-size: 0.88rem;
+            }
+
+            .nav-buttons .btn-primary {
+                padding: 9px 14px;
+                font-size: 0.85rem;
+            }
+
+            .hero-section {
+                padding: 28px 0 80px;
+            }
+
+            .hero-content h1 {
+                font-size: 1.85rem;
+            }
+
+            .hero-subtitle {
+                font-size: 0.98rem;
+            }
+
+            .hero-cta-group,
+            .hero-cta-group .btn-white {
+                width: 100%;
+                text-align: center;
+            }
+
+            .live-player-card {
+                padding: 18px;
+            }
+
+            .section-header h2 {
+                font-size: 1.7rem;
+            }
+
+            .solution-box {
+                padding: 28px 20px;
+            }
+
+            .cta-banner {
+                padding: 40px 20px;
+            }
+
+            .cta-banner h2 {
+                font-size: 1.55rem;
+            }
+
+            .footer-grid {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .nav-buttons .btn-ghost {
+                display: none;
+            }
+        } 
+        /* ORCA GIGANTE NADANDO NA TELA TODA */
+.orca-swimmer-layer {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 40;
+    overflow: hidden;
+}
+
+.orca-giant {
+    position: absolute;
+    width: 400px;
+    max-width: 75vw;
+    opacity: 0.70; /* Sutil para não atrapalhar a leitura dos textos */
+    filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.25));
+    will-change: transform;
+    animation: nadarPelaTela 36s ease-in-out infinite;
+}
+
+/* Movimento contínuo da cauda */
+.orca-tail {
+    transform-origin: 94px 96px;
+    animation: baterCauda 2.4s ease-in-out infinite;
+}
+
+@keyframes baterCauda {
+    0%, 100% { transform: rotate(-6deg); }
+    50% { transform: rotate(7deg); }
+}
+
+@keyframes nadarPelaTela {
+    0% {
+        transform: translate(-380px, 72vh) rotate(-8deg) scaleX(1);
+    }
+    25% {
+        transform: translate(35vw, 48vh) rotate(-12deg) scaleX(1);
+    }
+    48% {
+        transform: translate(calc(100vw + 380px), 22vh) rotate(-5deg) scaleX(1);
+    }
+    50% {
+        transform: translate(calc(100vw + 380px), 35vh) rotate(-6deg) scaleX(-1);
+    }
+    75% {
+        transform: translate(45vw, 62vh) rotate(-10deg) scaleX(-1);
+    }
+    98% {
+        transform: translate(-380px, 78vh) rotate(-4deg) scaleX(-1);
+    }
+    100% {
+        transform: translate(-380px, 72vh) rotate(-8deg) scaleX(1);
+    }
+}
+    </style>
+</head>
+<body> 
+     
+<!-- ORCA GIGANTE EM MOVIMENTO NA TELA TODA -->
+<div class="orca-swimmer-layer" aria-hidden="true">
+    <svg class="orca-giant" viewBox="0 0 420 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Cauda articulada com base interna arredondada para nunca soltar do corpo -->
+        <g class="orca-tail">
+            <path d="M98 86 C65 82, 32 64, 8 52 C22 76, 30 88, 34 94 C24 104, 14 118, 6 134 C32 122, 65 108, 98 106 C106 105, 106 87, 98 86 Z" fill="#0a0a0a"/>
+        </g>
+        <!-- Corpo principal da Orca -->
+        <path d="M82 94 C125 68, 185 52, 255 58 C318 63, 378 78, 408 100 C385 118, 330 128, 260 126 C190 124, 130 112, 82 94 Z" fill="#0a0a0a"/>
+        <!-- Barbatana dorsal alta -->
+        <path d="M210 57 C216 26, 224 12, 232 8 C234 26, 240 44, 248 58 Z" fill="#0a0a0a"/>
+        <!-- Nadadeira peitoral -->
+        <path d="M275 116 C265 142, 248 160, 232 166 C236 146, 245 130, 256 118 Z" fill="#0a0a0a"/>
+        <!-- Mancha branca característica da barriga e queixo -->
+        <path d="M295 123 C335 124, 378 116, 404 101 C382 108, 342 112, 305 110 C285 109, 272 116, 295 123 Z" fill="#ffffff"/>
+        <!-- Mancha branca pós-ocular (icônica da Orca) -->
+        <ellipse cx="348" cy="84" rx="18" ry="8" transform="rotate(-10 348 84)" fill="#ffffff"/>
+        <!-- Mancha sela cinza atrás da dorsal -->
+        <path d="M168 64 C182 58, 198 57, 206 60 C196 68, 182 72, 168 64 Z" fill="#737373" opacity="0.6"/>
+    </svg>
+</div>
+
+    <!-- BLOCO 01: CABEÇALHO -->
+    <header class="navbar">
+        <div class="container nav-wrapper">
+           <a href="#" class="brand-logo">
+    <img src="logo-orca.jpg" alt="Logo Orca Sonora" class="brand-logo-img">
+    Orca<span>Sonora</span>
+</a>
+            
+            <nav class="nav-menu">
+                <a href="#como-funciona">Como funciona</a>
+                <a href="#locutor-ia">Locutor com IA</a>
+                <a href="#exemplos">Exemplos</a>
+                <a href="#planos">Planos</a>
+                <a href="#faq">Dúvidas</a>
+            </nav>
+
+            <div class="nav-buttons">
+                <button type="button" id="btn-instalar-pwa" class="btn-secondary" style="display: none; padding: 8px 12px; font-size: 0.82rem;">📲 Instalar App</button>
+                <a href="#login" class="btn-ghost" id="btn-login">Entrar</a>
+                <a href="#planos" class="btn-primary">Testar grátis por 7 dias</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- BLOCO 02: CAPA PRINCIPAL + ONDAS DO MAR NO FUNDO -->
+    <section class="hero-section">
+        <canvas id="ocean-canvas"></canvas>
+
+        <div class="container hero-container-z">
+            <nav class="breadcrumb" aria-label="Navegação estrutural">
+                <a href="#">Início</a>
+                <span>›</span>
+                <a href="#">Playlist inteligente</a>
+                <span>›</span>
+                <span class="current">Salões de beleza e barbearias</span>
+            </nav>
+
+            <div class="hero-grid">
+                <div class="hero-content">
+                    <span class="pill-badge">Rádio Indoor Inteligente</span>
+                    <h1>Playmusic inteligente para salões de beleza e barbearias: <span>o clima faz parte do serviço</span></h1>
+                    <p class="hero-subtitle">
+                        A <strong>Orca Sonora</strong> dá ao seu salão ou barbearia uma rádio própria, com playlists no estilo da casa e um locutor com IA que anuncia combos, tratamentos e produtos e lembra o cliente de agendar a próxima visita. Tudo no navegador, sem aparelho novo.
+                    </p>
+                    <div class="hero-cta-group">
+                        <a href="#planos" class="btn-white btn-lg">Testar grátis por 7 dias</a>
+                        <span class="cta-note">Sem cartão de crédito · Cancele quando quiser</span>
+                    </div>
+                </div>
+
+                <div class="hero-player-box">
+                    <div class="live-player-card" id="hero-player">
+                        <div class="player-top-info">
+                            <span class="playing-from">Tocando de: <strong>Mistura · 2 playlists</strong></span>
+                            <span class="status-badge live" id="player-status">
+                                <span class="pulse-dot"></span> Locutor No Ar
+                            </span>
+                        </div>
+
+                        <div class="track-info">
+                            <div class="album-art">🐋</div>
+                            <div class="track-details">
+                                <h3 id="track-title">Been By Now</h3>
+                                <p id="track-artist">Morgan Wallen</p>
+                            </div>
+                        </div>
+
+                        <div class="player-progress-area">
+                            <div class="progress-track">
+                                <div class="progress-bar" style="width: 66%;"></div>
+                            </div>
+                            <div class="time-labels">
+                                <span id="current-time">2:21</span>
+                                <span id="total-time">3:33</span>
+                            </div>
+                        </div>
+
+                        <div class="player-footer-tags">
+                            <span class="tag-pill">🎙️ Locutor: No ar</span>
+                            <span class="tag-pill highlight">✂️ Anúncio de Serviço</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BLOCO 03: CONTEXTO E PROBLEMAS COMUNS -->
+    <section class="pain-points-section">
+        <div class="container two-col-grid">
+            <div class="text-block">
+                <h2>O ambiente é parte do atendimento</h2>
+                <p>No salão e na barbearia, o cliente fica muito tempo: uma hora de corte e escova, duas horas de coloração, quarenta minutos de cabelo e barba. Durante todo esse tempo, o ambiente faz parte do serviço. Ninguém volta a um lugar onde não se sentiu bem, por melhor que tenha ficado o corte.</p>
+                <p>Cada casa tem a sua personalidade. O salão pode ser um refúgio relaxante; a barbearia, um ponto de encontro animado. O som é uma das formas mais rápidas de deixar essa personalidade clara para quem entra.</p>
+            </div>
+
+            <div class="problems-card">
+                <h3>Problemas comuns no som de salões e barbearias</h3>
+                <p>Em muitos salões, a música é a do celular de alguém da equipe, e o estilo muda conforme quem está trabalhando. Em outros, a TV fica ligada num canal qualquer — e o cliente sai sem saber dos outros serviços da casa:</p>
+                <ul class="problem-list">
+                    <li><span>✕</span> Trilha que muda conforme o profissional do turno</li>
+                    <li><span>✕</span> Serviços e tratamentos que o cliente não conhece</li>
+                    <li><span>✕</span> Produtos expostos na prateleira que ninguém comenta</li>
+                    <li><span>✕</span> Cliente que sai sem marcar o próximo horário</li>
+                    <li><span>✕</span> Datas fortes, como casamentos e festas de fim de ano, pouco aproveitadas</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- BLOCO 04: COMO FUNCIONA -->
+    <section id="como-funciona" class="steps-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="eyebrow">Como funciona</span>
+                <h2>Em poucos minutos, sua loja está no ar</h2>
+                <p>Nossa IA monta a programação sob medida para o seu público. Tudo no automático.</p>
+            </div>
+
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Conte como é o seu negócio</h3>
+                    <p>Uma conversa rápida com o nosso assistente: o tipo de negócio, o público e o clima que você quer.</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>Nossa IA monta a sua rádio</h3>
+                    <p>Playlists para o seu público e um locutor no tom da sua marca, prontos para tocar.</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Aperte o play</h3>
+                    <p>No computador, no tablet ou no celular da loja. É só deixar tocando.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BLOCO 05: COMO A RÁDIO TRABALHA -->
+    <section class="niche-solution-section">
+        <div class="container">
+            <div class="solution-box">
+                <div class="solution-main">
+                    <h2>Como a Rádio Indoor trabalha no seu salão ou barbearia</h2>
+                    <p>Você descreve a casa — por exemplo, <em>salão feminino com clima relaxante</em> ou <em>barbearia com rock e hip hop para público jovem</em> — e a inteligência artificial monta playlists nesse estilo. Se preferir, monta as suas à mão. O <strong>processador de áudio</strong> mantém o volume estável, um cuidado importante num ambiente cheio de secadores e máquinas.</p>
+                    <p>O locutor com IA fala o nome da casa e, entre as músicas, apresenta os serviços: o combo de cabelo e barba, a hidratação, o pacote de noiva, a linha de produtos para levar para casa. Para avisos pontuais, como chamar o próximo cliente da fila, o <strong>aviso instantâneo</strong> fala na hora.</p>
+                </div>
+
+                <div class="tips-box">
+                    <h3>💡 Dicas de programação que funcionam na beleza</h3>
+                    <ul class="check-list">
+                        <li><strong>Combos nos dias parados:</strong> anunciados nos dias de menor movimento para estimular a agenda.</li>
+                        <li><strong>Produtos na vitrine:</strong> citados em mensagens curtas que a equipe completa na conversa.</li>
+                        <li><strong>Lembrete de retorno:</strong> aviso de agendamento perto do horário de saída dos clientes.</li>
+                        <li><strong>Datas especiais:</strong> roteiro próprio para Dia das Mães, Dia dos Pais, formaturas e fim de ano.</li>
+                        <li><strong>Fidelidade:</strong> lembrado algumas vezes por dia, sem exagero.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="two-col-grid mt-40">
+                <div class="info-card">
+                    <h3>🎙️ Uma voz que combina com a casa</h3>
+                    <p>Numa barbearia descontraída, o locutor pode ser animado e falar como quem conhece a turma; num salão sofisticado, a fala é elegante e tranquila. Como cada fala é diferente da anterior, o cliente fiel não ouve sempre a mesma frase.</p>
+                </div>
+                <div class="info-card">
+                    <h3>🏪 Mais de uma unidade e horário automático</h3>
+                    <p>Os planos cobrem 1, 2, 6 ou 15 locais ao mesmo tempo. A rádio roda no navegador da recepção e pausa sozinha no fechamento, voltando na abertura — inclusive com horários diferentes no sábado ou avisos especiais para a sala de espera.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BLOCO 06: RECURSOS -->
+    <section id="locutor-ia" class="features-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Um locutor que conhece a sua loja</h2>
+                <p>Ele improvisa ao vivo, anuncia suas ofertas e a sua marca o dia inteiro com voz natural que parece gente.</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="f-icon">📻</div>
+                    <h3>Vinhetas com o nome da loja</h3>
+                    <p>O locutor apresenta a sua rádio e lembra o nome do seu negócio ao longo do dia.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="f-icon">⏰</div>
+                    <h3>Hora certa</h3>
+                    <p>Avisa a hora entre as músicas, como nas rádios de verdade.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="f-icon">🏷️</div>
+                    <h3>Ofertas e promoções</h3>
+                    <p>Anuncia a oferta do dia, da semana ou de um horário específico.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="f-icon">⚡</div>
+                    <h3>Avisos ao vivo</h3>
+                    <p>Você digita e ele fala na hora, por cima da música: chamar um cliente ou avisar que o atendimento está pronto.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="f-icon">📅</div>
+                    <h3>Datas especiais</h3>
+                    <p>Dia das Mães, Black Friday, aniversário da loja: roteiros por data, dia da semana e horário.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="f-icon">🎭</div>
+                    <h3>A voz e o tom da sua marca</h3>
+                    <p>Você escolhe a voz e o jeito de falar: animado, elegante ou acolhedor.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BLOCO 07: EXEMPLOS -->
+    <section id="exemplos" class="scripts-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Exemplos de locução na prática</h2>
+                <p>Veja (e ouça) como a IA adapta o texto para vender seus serviços sem parecer propaganda chata.</p>
+            </div>
+
+            <div class="scripts-grid">
+                <div class="script-card">
+                    <div class="script-top">
+                        <span class="script-tag">Combo</span>
+                        <button class="btn-play-sample" data-sample="combo">▶ Ouvir exemplo</button>
+                    </div>
+                    <blockquote>“Na Barbearia Navalha de Ouro, o combo cabelo e barba sai com condição especial de segunda a quarta. Agende o seu!”</blockquote>
+                </div>
+
+                <div class="script-card">
+                    <div class="script-top">
+                        <span class="script-tag">Tratamento</span>
+                        <button class="btn-play-sample" data-sample="tratamento">▶ Ouvir exemplo</button>
+                    </div>
+                    <blockquote>“Cabelo ressecado? Pergunte à sua cabeleireira sobre a hidratação profunda do Studio Bella Forma.”</blockquote>
+                </div>
+
+                <div class="script-card">
+                    <div class="script-top">
+                        <span class="script-tag">Agendamento</span>
+                        <button class="btn-play-sample" data-sample="agendamento">▶ Ouvir exemplo</button>
+                    </div>
+                    <blockquote>“Antes de sair, já garanta o seu próximo horário na recepção. Assim você mantém o visual sempre em dia.”</blockquote>
+                </div>
+
+                <div class="script-card">
+                    <div class="script-top">
+                        <span class="script-tag">Produtos</span>
+                        <button class="btn-play-sample" data-sample="produtos">▶ Ouvir exemplo</button>
+                    </div>
+                    <blockquote>“Gostou do resultado? Os produtos usados hoje estão à venda na nossa vitrine, para você cuidar em casa.”</blockquote>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BLOCO 08: PLANOS -->
+    <section id="planos" class="pricing-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="eyebrow">Menos que um cafezinho por dia</span>
+                <h2>Planos simples, com tudo incluído</h2>
+                <p>Todos os planos têm os mesmos recursos. O que muda é em quantos locais a rádio toca ao mesmo tempo e quantos créditos você recebe por mês.</p>
+                <div class="currency-pill">Pagar em <strong>R$ · BRL</strong></div>
+            </div>
+
+            <div class="pricing-grid single-plan">
+                <div class="plan-card featured">
+                    <span class="plan-badge">Mais Popular</span>
+                    <h3>Lite</h3>
+                    <div class="plan-price">
+                        <span class="currency">R$</span>64,90<span class="period">/mês</span>
+                    </div>
+                    <p class="daily-cost">Cerca de <strong>R$ 2,16 por dia</strong></p>
+                    <div class="credits-box">≈ 2.992 créditos por mês</div>
+
+                    <ul class="plan-features">
+                        <li>
+                            <strong>1 local simultâneo</strong>
+                            <span>A rádio tocando em 1 aparelho por vez</span>
+                        </li>
+                        <li>
+                            <strong>Locutor com IA</strong>
+                            <span>Locuções e avisos com voz natural, prontos em segundos</span>
+                        </li>
+                        <li>
+                            <strong>Playlist com IA</strong>
+                            <span>Playlists montadas para o perfil do seu negócio</span>
+                        </li>
+                        <li>
+                            <strong>Anúncios em pastas</strong>
+                            <span>Seus spots nos dias e horários que você escolher</span>
+                        </li>
+                        <li>
+                            <strong>Processador de áudio</strong>
+                            <span>Volume estável e som de rádio profissional</span>
+                        </li>
+                    </ul>
+
+                    <a href="#cadastro" class="btn-primary btn-block" data-plan="lite">Começar 7 dias grátis</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BLOCO 09: FAQ -->
+    <section id="faq" class="faq-section">
+        <div class="container faq-container">
+            <div class="section-header">
+                <h2>Perguntas frequentes</h2>
+            </div>
+
+            <div class="faq-list">
+                <details class="faq-item" open>
+                    <summary>Dá para ter um som relaxante no salão e mais animado na barbearia?</summary>
+                    <p>Sim. Você descreve o estilo de cada casa e a IA monta as playlists, ou você escolhe as faixas à mão.</p>
+                </details>
+
+                <details class="faq-item">
+                    <summary>O locutor consegue anunciar os meus serviços e produtos?</summary>
+                    <p>Consegue. Você cadastra o que quer anunciar e escolhe dias e horários para cada mensagem.</p>
+                </details>
+
+                <details class="faq-item">
+                    <summary>O barulho de secador atrapalha?</summary>
+                    <p>O processador de áudio mantém o volume estável, e a música abaixa sozinha quando o locutor fala, para a mensagem ficar clara mesmo com secadores e máquinas ligados.</p>
+                </details>
+
+                <details class="faq-item">
+                    <summary>Posso usar meus próprios spots gravados?</summary>
+                    <p>Sim! Você pode subir seus próprios arquivos de áudio em pastas organizadas e programar exatamente os dias e horários em que deseja que eles toquem.</p>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- BLOCO 10: CTA BANNER -->
+    <section class="final-cta-section">
+        <div class="container">
+            <div class="cta-banner">
+                <h2>Teste a Orca Sonora no seu salão ou barbearia por 7 dias grátis</h2>
+                <p>Sem cartão de crédito · Cancele quando quiser · Roda direto no navegador</p>
+                <a href="#planos" class="btn-white btn-lg">Testar grátis por 7 dias</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- BLOCO 11: RODAPÉ -->
+   <footer class="site-footer">
+    <div class="container footer-grid">
+        <div>
+            <a href="#" class="brand-logo footer-logo">
+                <img src="logo-orca.jpg" alt="Orca Sonora" class="brand-logo-img">
+                Orca<span>Sonora</span>
+            </a>
+            <p>playermusic inteligente com IA para salões de beleza, barbearias e comércios.</p>
+        </div>
+            <div class="footer-links">
+                <a href="#como-funciona">Como funciona</a>
+                <a href="#exemplos">Exemplos de locução</a>
+                <a href="#planos">Planos e preços</a>
+                <a href="#faq">Perguntas frequentes</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 Orca Sonora. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Container do Modal -->
+    <div id="modal-container"></div>
+
+    <!-- SDK Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Script Inline (Ondas + Player + Voz + Modais + Supabase + PWA) -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            iniciarOndasDoMar();
+            iniciarPlayerCapa();
+            iniciarExemplosDeVoz();
+            iniciarSistemaDeModais();
+        });
+
+        /* MÓDULO 00: ONDAS DO MAR ANIMADAS NO FUNDO DO HERO */
+        function iniciarOndasDoMar() {
+            const canvas = document.getElementById("ocean-canvas");
+            if (!canvas) return;
+            const ctx = canvas.getContext("2d");
+
+            let width, height;
+            let fase = 0;
+
+            function redimensionar() {
+                width = canvas.width = canvas.offsetWidth;
+                height = canvas.height = canvas.offsetHeight;
+            }
+
+            window.addEventListener("resize", redimensionar);
+            redimensionar();
+
+            const ondas = [
+                { amplitude: 22, frequencia: 0.004, velocidade: 0.015, yOffset: 0.72, cor: "rgba(255, 255, 255, 0.05)" },
+                { amplitude: 18, frequencia: 0.006, velocidade: -0.02, yOffset: 0.78, cor: "rgba(255, 255, 255, 0.09)" },
+                { amplitude: 14, frequencia: 0.008, velocidade: 0.025, yOffset: 0.85, cor: "rgba(255, 255, 255, 0.14)" },
+                { amplitude: 12, frequencia: 0.005, velocidade: 0.018, yOffset: 0.93, cor: "#ffffff" }
+            ];
+
+            function animar() {
+                ctx.clearRect(0, 0, width, height);
+                fase += 1;
+
+                ondas.forEach((onda) => {
+                    ctx.beginPath();
+                    ctx.moveTo(0, height);
+
+                    for (let x = 0; x <= width; x += 6) {
+                        const y = height * onda.yOffset +
+                                  Math.sin(x * onda.frequencia + fase * onda.velocidade) * onda.amplitude;
+                        ctx.lineTo(x, y);
+                    }
+
+                    ctx.lineTo(width, height);
+                    ctx.closePath();
+                    ctx.fillStyle = onda.cor;
+                    ctx.fill();
+                });
+
+                requestAnimationFrame(animar);
+            }
+
+            animar();
+        }
+
+        /* MÓDULO 01: PLAYER AO VIVO */
+        function iniciarPlayerCapa() {
+            const progressBar = document.querySelector(".progress-bar");
+            const currentTimeEl = document.getElementById("current-time");
+            const totalTimeEl = document.getElementById("total-time");
+            const statusBadge = document.getElementById("player-status");
+            const trackTitle = document.getElementById("track-title");
+            const trackArtist = document.getElementById("track-artist");
+
+            if (!progressBar || !currentTimeEl) return;
+
+            const programacao = [
+                { titulo: "Been By Now", artista: "Morgan Wallen", duracao: 213, locutor: false },
+                { titulo: "Locução IA • Oferta Combo Corte + Barba", artista: "Orca Sonora Voz Neural", duracao: 18, locutor: true },
+                { titulo: "Blinding Lights (Acoustic Lounge)", artista: "The Weeknd", duracao: 195, locutor: false }
+            ];
+
+            let faixaAtual = 0;
+            let segundoAtual = 141;
+
+            function formatarTempo(segundos) {
+                const min = Math.floor(segundos / 60);
+                const seg = segundos % 60;
+                return `${min}:${seg < 10 ? "0" : ""}${seg}`;
+            }
+
+            function atualizarInterface() {
+                const item = programacao[faixaAtual];
+                const porcentagem = Math.min((segundoAtual / item.duracao) * 100, 100);
+
+                progressBar.style.width = `${porcentagem}%`;
+                currentTimeEl.textContent = formatarTempo(segundoAtual);
+                totalTimeEl.textContent = formatarTempo(item.duracao);
+                trackTitle.textContent = item.titulo;
+                trackArtist.textContent = item.artista;
+
+                if (item.locutor) {
+                    statusBadge.innerHTML = `<span class="pulse-dot" style="background-color:#050505;"></span> Locutor Falando (Ducking Ativo)`;
+                    statusBadge.style.backgroundColor = "#ffffff";
+                    statusBadge.style.color = "#050505";
+                } else {
+                    statusBadge.innerHTML = `<span class="pulse-dot"></span> Música no Ar`;
+                    statusBadge.style.backgroundColor = "rgba(255, 255, 255, 0.12)";
+                    statusBadge.style.color = "#ffffff";
+                }
+            }
+
+            setInterval(() => {
+                segundoAtual++;
+                if (segundoAtual >= programacao[faixaAtual].duracao) {
+                    segundoAtual = 0;
+                    faixaAtual = (faixaAtual + 1) % programacao.length;
+                }
+                atualizarInterface();
+            }, 1000);
+        }
+
+        /* MÓDULO 02: REPRODUTOR DE EXEMPLOS DE VOZ */
+        function iniciarExemplosDeVoz() {
+            const botoesPlay = document.querySelectorAll(".btn-play-sample");
+            let botaoAtivo = null;
+
+            botoesPlay.forEach((botao) => {
+                botao.addEventListener("click", () => {
+                    if (!("speechSynthesis" in window)) {
+                        alert("Seu navegador não suporta reprodução de voz automática.");
+                        return;
+                    }
+
+                    if (window.speechSynthesis.speaking) {
+                        window.speechSynthesis.cancel();
+                        resetarBotoes();
+                        if (botaoAtivo === botao) {
+                            botaoAtivo = null;
+                            return;
+                        }
+                    }
+
+                    const card = botao.closest(".script-card");
+                    const textoRoteiro = card.querySelector("blockquote").textContent.replace(/[“”]/g, "");
+
+                    const fala = new SpeechSynthesisUtterance(textoRoteiro);
+                    fala.lang = "pt-BR";
+                    fala.rate = 1.05;
+                    fala.pitch = 1.0;
+
+                    botao.textContent = "⏹ Parar áudio";
+                    botao.style.backgroundColor = "#0a0a0a";
+                    botao.style.borderColor = "#0a0a0a";
+                    botao.style.color = "#ffffff";
+                    botaoAtivo = botao;
+
+                    fala.onend = () => {
+                        resetarBotoes();
+                        botaoAtivo = null;
+                    };
+
+                    window.speechSynthesis.speak(fala);
+                });
+            });
+
+            function resetarBotoes() {
+                botoesPlay.forEach((btn) => {
+                    btn.textContent = "▶ Ouvir exemplo";
+                    btn.style.backgroundColor = "";
+                    btn.style.borderColor = "";
+                    btn.style.color = "";
+                });
+            }
+        }
+
+        /* MÓDULO 03: MODAIS */
+        function iniciarSistemaDeModais() {
+            const modalContainer = document.getElementById("modal-container");
+            const btnLogin = document.getElementById("btn-login");
+
+            const estiloModal = document.createElement("style");
+            estiloModal.textContent = `
+                .orca-modal-overlay {
+                    position: fixed; inset: 0; background: rgba(5, 5, 5, 0.8);
+                    display: flex; align-items: center; justify-content: center;
+                    z-index: 999; padding: 16px;
+                    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+                }
+                .orca-modal-box {
+                    background: #ffffff; color: #0a0a0a; width: 100%; max-width: 460px;
+                    border-radius: 16px; padding: 28px; position: relative;
+                    border: 1px solid #e5e5e5;
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                    animation: modalFadeIn 0.2s ease-out;
+                    max-height: 92vh; overflow-y: auto;
+                }
+                @keyframes modalFadeIn {
+                    from { opacity: 0; transform: translateY(12px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .orca-modal-close {
+                    position: absolute; top: 16px; right: 18px; background: none;
+                    border: none; font-size: 1.5rem; cursor: pointer; color: #525252;
+                }
+                .orca-form-group { margin-bottom: 14px; text-align: left; }
+                .orca-form-group label {
+                    display: block; font-size: 0.88rem; font-weight: 700; margin-bottom: 6px;
+                }
+                .orca-form-group input, .orca-form-group select {
+                    width: 100%; padding: 12px; border: 1px solid #d4d4d4;
+                    border-radius: 8px; font-size: 16px; font-family: inherit;
+                }
+                .orca-form-group input:focus, .orca-form-group select:focus {
+                    outline: none; border-color: #0a0a0a;
+                }
+            `;
+            document.head.appendChild(estiloModal);
+
+            document.querySelectorAll("[data-plan]").forEach((btn) => {
+                btn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    const planoEscolhido = btn.getAttribute("data-plan");
+                    abrirModalCadastro(planoEscolhido);
+                });
+            });
+
+            if (btnLogin) {
+                btnLogin.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    abrirModalLogin();
+                });
+            }
+
+            function abrirModalCadastro(plano = "lite") {
+                modalContainer.innerHTML = `
+                    <div class="orca-modal-overlay" id="fechar-overlay">
+                        <div class="orca-modal-box">
+                            <button class="orca-modal-close" id="fechar-modal">&times;</button>
+                            <span class="pill-badge" style="margin-bottom:8px; background:#0a0a0a; color:#ffffff;">7 dias grátis · Sem cartão</span>
+                            <h2 style="font-size:1.5rem; margin-bottom:6px;">Crie a rádio do seu negócio</h2>
+                            <p style="color:#525252; font-size:0.9rem; margin-bottom:20px;">
+                                Configure seu salão ou barbearia em menos de 1 minuto.
+                            </p>
+
+                            <form id="form-cadastro-orca">
+                                <div class="orca-form-group">
+                                    <label>Nome do Salão ou Barbearia</label>
+                                    <input type="text" id="nome-empresa" placeholder="Ex: Barbearia Navalha de Ouro" required>
+                                </div>
+
+                                <div class="orca-form-group">
+                                    <label>Estilo principal da casa</label>
+                                    <select id="estilo-casa">
+                                        <option value="barbearia_rock_hiphop">Barbearia (Rock, Hip Hop e Clássicos)</option>
+                                        <option value="salao_relaxante">Salão de Beleza (Lounge, Pop Leve e Relaxante)</option>
+                                        <option value="estetica_sofisticado">Clínica de Estética / Spa (Instrumental Sofisticado)</option>
+                                        <option value="misto_animado">Unissex / Ambiente Animado (Hits Atuais)</option>
+                                    </select>
+                                </div>
+
+                                <div class="orca-form-group">
+                                    <label>Seu E-mail</label>
+                                    <input type="email" id="email-cliente" placeholder="voce@seusalao.com.br" required>
+                                </div>
+
+                                <div class="orca-form-group">
+                                    <label>WhatsApp</label>
+                                    <input type="tel" id="whatsapp-cliente" placeholder="(62) 99999-9999" required>
+                                </div>
+
+                                <div class="orca-form-group">
+                                    <label>Plano selecionado</label>
+                                    <select id="plano-selecionado">
+                                        <option value="lite" ${plano === "lite" ? "selected" : ""}>Lite — 1 local (R$ 64,90/mês após 7 dias)</option>
+                                    </select>
+                                </div>
+
+                                <button type="submit" class="btn-primary btn-block" style="padding:14px; font-size:1rem;">
+                                    Ativar meus 7 dias grátis agora
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                `;
+
+                configurarFechamentoModal();
+
+                document.getElementById("form-cadastro-orca").addEventListener("submit", async (e) => {
+                    e.preventDefault();
+
+                    const dadosNovoCliente = {
+                        empresa: document.getElementById("nome-empresa").value,
+                        estilo: document.getElementById("estilo-casa").value,
+                        email: document.getElementById("email-cliente").value,
+                        whatsapp: document.getElementById("whatsapp-cliente").value,
+                        plano: document.getElementById("plano-selecionado").value
+                    };
+
+                    await salvarNoBancoDeDados(dadosNovoCliente);
+
+                    modalContainer.innerHTML = `
+                        <div class="orca-modal-overlay" id="fechar-overlay">
+                            <div class="orca-modal-box" style="text-align:center;">
+                                <div style="font-size:3rem; margin-bottom:12px;">🐋</div>
+                                <h2 style="margin-bottom:8px;">Rádio criada com sucesso!</h2>
+                                <p style="color:#525252; margin-bottom:24px;">
+                                    A rádio da <strong>${dadosNovoCliente.empresa}</strong> já está pronta.
+                                </p>
+                                <a href="painel.html" class="btn-primary btn-block">Abrir Painel da Rádio Agora</a>
+                            </div>
+                        </div>
+                    `;
+                    configurarFechamentoModal();
+                });
+            }
+
+            function abrirModalLogin() {
+                modalContainer.innerHTML = `
+                    <div class="orca-modal-overlay" id="fechar-overlay">
+                        <div class="orca-modal-box">
+                            <button class="orca-modal-close" id="fechar-modal">&times;</button>
+                            <h2 style="font-size:1.5rem; margin-bottom:6px;">Acessar minha Rádio</h2>
+                            <p style="color:#525252; font-size:0.9rem; margin-bottom:20px;">
+                                Entre para abrir o player da loja ou gerenciar seus anúncios.
+                            </p>
+                            <form id="form-login-orca">
+                                <div class="orca-form-group">
+                                    <label>E-mail cadastrado</label>
+                                    <input type="email" required placeholder="seu@email.com">
+                                </div>
+                                <div class="orca-form-group">
+                                    <label>Senha</label>
+                                    <input type="password" required placeholder="••••••••">
+                                </div>
+                                <button type="submit" class="btn-primary btn-block" style="padding:14px;">Entrar no Painel</button>
+                            </form>
+                        </div>
+                    </div>
+                `;
+                configurarFechamentoModal();
+
+                document.getElementById("form-login-orca").addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    window.location.href = "painel.html";
+                });
+            }
+
+            function configurarFechamentoModal() {
+                const btnFechar = document.getElementById("fechar-modal");
+                const overlay = document.getElementById("fechar-overlay");
+
+                if (btnFechar) btnFechar.onclick = () => (modalContainer.innerHTML = "");
+                if (overlay) {
+                    overlay.onclick = (e) => {
+                        if (e.target === overlay) modalContainer.innerHTML = "";
+                    };
+                }
+            }
+        }
+
+        /* MÓDULO 04: SUPABASE */
+        const SUPABASE_URL = "https://hffnxblzvathjtedoyoz.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_PETXg6auyEFgcWYd1rR4rA_F1G5EHwA";
+
+        async function salvarNoBancoDeDados(dados) {
+            if (!window.supabase) return;
+            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            const { error } = await supabaseClient
+                .from("empresas")
+                .insert([{
+                    nome_empresa: dados.empresa,
+                    estilo_musical: dados.estilo,
+                    email: dados.email,
+                    whatsapp: dados.whatsapp,
+                    plano: dados.plano,
+                    limite_locais: 1
+                }]);
+
+            if (error) {
+                console.error("Erro Supabase:", error);
+                alert("Erro do banco: " + error.message);
+                throw error;
+            }
+        }
+
+        /* MÓDULO 05: PWA (SERVICE WORKER + INSTALAR APP) */
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("./sw.js").catch((err) => {
+                    console.log("SW não registrado:", err);
+                });
+            });
+        }
+
+        let eventoInstalacaoPWA = null;
+        const btnInstalarPWA = document.getElementById("btn-instalar-pwa");
+
+        window.addEventListener("beforeinstallprompt", (e) => {
+            e.preventDefault();
+            eventoInstalacaoPWA = e;
+            if (btnInstalarPWA) btnInstalarPWA.style.display = "inline-block";
+        });
+
+        if (btnInstalarPWA) {
+            btnInstalarPWA.addEventListener("click", async () => {
+                if (!eventoInstalacaoPWA) return;
+                eventoInstalacaoPWA.prompt();
+                const { outcome } = await eventoInstalacaoPWA.userChoice;
+                if (outcome === "accepted") {
+                    btnInstalarPWA.style.display = "none";
+                }
+                eventoInstalacaoPWA = null;
+            });
+        }
+
+        window.addEventListener("appinstalled", () => {
+            if (btnInstalarPWA) btnInstalarPWA.style.display = "none";
+        });
+    </script>
+</body>
+</html>

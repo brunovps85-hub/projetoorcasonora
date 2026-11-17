@@ -1,0 +1,2020 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>Orca Sonora — Painel da Rádio ao Vivo</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#050505">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Orca Sonora">
+    <link rel="apple-touch-icon" href="logo-orca.jpg">
+    <link rel="icon" type="image/jpeg" href="logo-orca.jpg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-app: #050505;
+            --bg-card: rgba(16, 16, 18, 0.94);
+            --bg-input: #0a0a0c;
+            --border: #222226;
+            --border-strong: #383842;
+            --primary: #ffffff;
+            --primary-hover: #e5e5e5;
+            --text-on-primary: #050505;
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            line-height: 1.5;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        #ocean-bg-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .topbar,
+        .weather-hero-banner,
+        .dashboard-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* =================================================================
+           TOPBAR COM LOGO PREMIUM
+        ================================================================== */
+        .topbar {
+            background-color: rgba(10, 10, 12, 0.94);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-logo {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--text-main);
+            text-decoration: none;
+            letter-spacing: -0.02em;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            white-space: nowrap;
+        }
+
+        .brand-logo-img {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .brand-logo span {
+            background-color: #ffffff;
+            color: #050505;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-left: 2px;
+            font-weight: 700;
+        }
+
+        .divider {
+            color: var(--border-strong);
+        }
+
+        .empresa-select {
+            background-color: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--border-strong);
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .badge-trial {
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 6px 14px;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .btn-sair {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-sair:hover {
+            color: var(--text-main);
+        }
+
+        /* =================================================================
+           WIDGET DE CLIMA, DATA E HORA
+        ================================================================== */
+        .studio-telemetry-bar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-strong);
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+        }
+
+        .telemetry-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .telemetry-time {
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: #ffffff;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .telemetry-date {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            text-transform: capitalize;
+        }
+
+        .telemetry-divider {
+            width: 1px;
+            height: 22px;
+            background-color: var(--border-strong);
+        }
+
+        .telemetry-weather {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .weather-temp {
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .weather-city {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+        }
+
+        /* =================================================================
+           BANNER ATMOSFÉRICO DO TEMPO + NUVENS PASSANDO (MANTIDO)
+        ================================================================== */
+        .weather-hero-banner {
+            position: relative;
+            max-width: 1232px;
+            margin: 22px auto 0;
+            padding: 26px 32px;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            background: linear-gradient(135deg, #0b1324 0%, #162238 55%, #0a0a0a 100%);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            transition: background 1s ease;
+        }
+
+        .weather-hero-banner.modo-dia {
+            background: linear-gradient(135deg, #162a45 0%, #243b55 55%, #111827 100%);
+        }
+        .weather-hero-banner.modo-noite {
+            background: linear-gradient(135deg, #070b14 0%, #111827 55%, #050505 100%);
+        }
+
+        .sky-celestial {
+            position: absolute;
+            top: 24px;
+            right: 32px;
+            font-size: 3.2rem;
+            opacity: 0.45;
+            filter: drop-shadow(0 0 18px rgba(255, 255, 255, 0.3));
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .clouds-layer {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 999px;
+            filter: blur(8px);
+            animation: passarNuvem linear infinite;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: "";
+            position: absolute;
+            background: inherit;
+            border-radius: 50%;
+        }
+
+        .cloud.c1 { width: 140px; height: 42px; top: 18%; animation-duration: 38s; animation-delay: -5s; }
+        .cloud.c1::before { width: 65px; height: 65px; top: -30px; left: 22px; }
+        .cloud.c1::after  { width: 50px; height: 50px; top: -20px; left: 70px; }
+
+        .cloud.c2 { width: 190px; height: 52px; top: 48%; opacity: 0.7; animation-duration: 52s; animation-delay: -22s; }
+        .cloud.c2::before { width: 85px; height: 85px; top: -40px; left: 30px; }
+        .cloud.c2::after  { width: 65px; height: 65px; top: -26px; left: 95px; }
+
+        .cloud.c3 { width: 115px; height: 34px; top: 28%; opacity: 0.55; animation-duration: 29s; animation-delay: -14s; }
+        .cloud.c3::before { width: 50px; height: 50px; top: -24px; left: 18px; }
+        .cloud.c3::after  { width: 40px; height: 40px; top: -15px; left: 55px; }
+
+        @keyframes passarNuvem {
+            0%   { transform: translateX(-220px); }
+            100% { transform: translateX(calc(100vw + 220px)); }
+        }
+
+        .weather-hero-content {
+            position: relative;
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .weather-greeting-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #e5e5e5;
+        }
+
+        .weather-store-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .weather-store-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .weather-store-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .weather-store-info h2 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .weather-store-location {
+            font-size: 0.85rem;
+            color: #a3a3a3;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 2px;
+        }
+
+        .weather-store-location:hover {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
+        /* =================================================================
+           LAYOUT PRINCIPAL EM 2 COLUNAS (ESTILO DAS IMAGENS)
+        ================================================================== */
+        .dashboard-container {
+            max-width: 1280px;
+            margin: 24px auto;
+            padding: 0 24px 60px;
+            display: grid;
+            grid-template-columns: 1.35fr 0.85fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .left-column,
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            min-width: 0;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 26px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+            min-width: 0;
+        }
+
+        .card-header {
+            margin-bottom: 18px;
+        }
+
+        .card-header h2 {
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .card-header .hint {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* =================================================================
+           PLAYER PRINCIPAL COM EQUALIZADOR DE ONDAS SONORAS (ESTILO DAS FOTOS)
+        ================================================================== */
+        .player-card {
+            background: linear-gradient(150deg, rgba(22, 22, 26, 0.96), rgba(10, 10, 12, 0.98));
+            border-color: var(--border-strong);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .player-status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            font-size: 0.82rem;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 99px;
+            font-weight: 700;
+        }
+
+        .status-indicator.playing {
+            background-color: rgba(255, 255, 255, 0.16);
+            color: #ffffff;
+        }
+
+        .status-indicator.ducking {
+            background-color: #ffffff;
+            color: #050505;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: currentColor;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.35; }
+        }
+
+        .next-spot-counter {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* CAIXA DE ONDAS SONORAS ANIMADAS (Igual às referências) */
+        .soundwave-visualizer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            height: 90px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            padding: 0 16px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .wave-bar {
+            width: 4px;
+            background: linear-gradient(to top, #60a5fa, #a855f7, #ffffff);
+            border-radius: 99px;
+            height: 15px;
+            transition: height 0.15s ease;
+        }
+
+        .player-card.is-playing .wave-bar {
+            animation: waveDance 1.2s ease-in-out infinite alternate;
+        }
+
+        /* Variação de atraso para dar efeito natural de áudio */
+        .wave-bar:nth-child(n) { animation-delay: 0.1s; }
+        .wave-bar:nth-child(2n) { animation-delay: 0.3s; height: 35px; }
+        .wave-bar:nth-child(3n) { animation-delay: 0.2s; height: 55px; }
+        .wave-bar:nth-child(4n) { animation-delay: 0.5s; height: 25px; }
+        .wave-bar:nth-child(5n) { animation-delay: 0.15s; height: 70px; }
+
+        @keyframes waveDance {
+            0% { transform: scaleY(0.3); opacity: 0.5; }
+            100% { transform: scaleY(1.8); opacity: 1; }
+        }
+
+        .soundwave-center-avatar {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10, 10, 12, 0.85);
+            border: 1px solid var(--border-strong);
+            padding: 8px 16px;
+            border-radius: 99px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #ffffff;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+
+        .now-playing {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        .cover-box {
+            width: 72px;
+            height: 72px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #ffffff 0%, #8c8c8c 100%);
+            color: #050505;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            flex-shrink: 0;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        .song-meta {
+            min-width: 0;
+        }
+
+        .playlist-label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #a855f7;
+            font-weight: 800;
+        }
+
+        .song-meta h1 {
+            font-size: 1.25rem;
+            margin: 3px 0;
+            color: #ffffff;
+            word-break: break-word;
+        }
+
+        .song-meta p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .progress-bg {
+            width: 100%;
+            height: 7px;
+            background-color: #222226;
+            border-radius: 99px;
+            overflow: hidden;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #60a5fa, #ffffff);
+            transition: width 0.2s linear;
+        }
+
+        .time-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 22px;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-play-main {
+            background-color: var(--primary);
+            color: var(--text-on-primary);
+            border: none;
+            padding: 13px 26px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.15);
+        }
+
+        .btn-play-main:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-control {
+            background-color: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--border-strong);
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+
+        .btn-control:hover {
+            border-color: #ffffff;
+            background-color: #1a1a1f;
+        }
+
+        .volume-control {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .volume-control input[type="range"] {
+            accent-color: #ffffff;
+            cursor: pointer;
+        }
+
+        /* =================================================================
+           AVISO INSTANTÂNEO AO VIVO
+        ================================================================== */
+        .voice-selector-bar {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .voice-selector-bar label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .voice-selector-bar select {
+            flex: 1;
+            min-width: 0;
+            max-width: 100%;
+            background: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--border-strong);
+            padding: 10px 14px;
+            border-radius: 10px;
+        }
+
+        .announce-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .announce-form input {
+            flex: 1;
+            min-width: 0;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-strong);
+            color: var(--text-main);
+            padding: 12px 14px;
+            border-radius: 12px;
+        }
+
+        .announce-form input:focus {
+            outline: none;
+            border-color: #ffffff;
+        }
+
+        .quick-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 7px 14px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: left;
+        }
+
+        .quick-btn:hover {
+            border-color: #ffffff;
+            color: #ffffff;
+        }
+
+        /* =================================================================
+           CATÁLOGO E ÁLBUNS
+        ================================================================== */
+        .search-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            min-width: 0;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-strong);
+            color: var(--text-main);
+            padding: 11px 14px;
+            border-radius: 12px;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #ffffff;
+        }
+
+        .genre-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .genre-btn {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 7px 16px;
+            border-radius: 99px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .genre-btn:hover,
+        .genre-btn.active {
+            background-color: #ffffff;
+            border-color: #ffffff;
+            color: #050505;
+        }
+
+        .section-sublabel {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 700;
+        }
+
+        .albums-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .album-card {
+            background: #111115;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s, border-color 0.2s;
+            position: relative;
+        }
+
+        .album-card:hover {
+            background: #1a1a20;
+            border-color: #ffffff;
+            transform: translateY(-3px);
+        }
+
+        .album-cover-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #0a0a0c;
+            margin-bottom: 8px;
+        }
+
+        .album-cover-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(20%);
+            transition: filter 0.2s;
+        }
+
+        .album-card:hover .album-cover-wrap img {
+            filter: grayscale(0%);
+        }
+
+        .album-play-badge {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #050505;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            transform: translateY(6px);
+            transition: all 0.2s;
+        }
+
+        .album-card:hover .album-play-badge {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .album-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .album-artist {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+        }
+
+        .track-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 340px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .track-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background-color: var(--bg-input);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: 0.2s;
+            gap: 10px;
+        }
+
+        .track-item:hover {
+            border-color: var(--border-strong);
+        }
+
+        .track-item.active {
+            border-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .track-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .track-thumb {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            object-fit: cover;
+            background-color: #1a1a1f;
+            flex-shrink: 0;
+        }
+
+        /* =================================================================
+           FORMULÁRIOS E BOTÕES GERAIS
+        ================================================================== */
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+        }
+
+        .form-group select,
+        .form-group textarea,
+        .form-group input[type="text"],
+        .form-group input[type="file"] {
+            width: 100%;
+            background-color: #111115;
+            border: 1px solid var(--border-strong);
+            color: var(--text-main);
+            padding: 11px 14px;
+            border-radius: 10px;
+        }
+
+        .form-group select:focus,
+        .form-group textarea:focus,
+        .form-group input[type="text"]:focus {
+            outline: none;
+            border-color: #ffffff;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--text-on-primary);
+            border: none;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            flex: 1;
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: #ffffff;
+            border: 1px solid var(--border-strong);
+            padding: 11px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .spots-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .spot-item {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            padding: 14px;
+            border-radius: 12px;
+        }
+
+        .spot-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .spot-badge {
+            background-color: #ffffff;
+            color: #050505;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+
+        .spot-item p {
+            font-size: 0.88rem;
+            color: #e5e5e5;
+            margin-bottom: 10px;
+        }
+
+        .spot-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-mini {
+            background-color: #17171d;
+            border: 1px solid var(--border-strong);
+            color: var(--text-muted);
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-mini:hover {
+            color: #ffffff;
+            border-color: #ffffff;
+        }
+
+        .empty-msg {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 16px 0;
+        }
+
+        /* =================================================================
+           ESTÚDIO ORCA: ABAS, SLIDERS E MIXAGEM VERTICAL (ESTILO FOTOS)
+        ================================================================== */
+        .studio-tabs-nav {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            background-color: var(--bg-input);
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 18px;
+        }
+
+        .studio-tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 4px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
+        }
+
+        .studio-tab-btn:hover {
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .studio-tab-btn.active {
+            background-color: #ffffff;
+            color: #050505;
+        }
+
+        .studio-tab-pane {
+            display: none;
+            flex-direction: column;
+            gap: 18px;
+            animation: fadeTab 0.2s ease-out;
+        }
+
+        .studio-tab-pane.active {
+            display: flex;
+        }
+
+        @keyframes fadeTab {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .setting-section {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px;
+        }
+
+        .setting-section-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .setting-section-top h3 {
+            font-size: 0.98rem;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+
+        .setting-section-top p {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .btn-reset-mini {
+            background: transparent;
+            border: 1px solid var(--border-strong);
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-reset-mini:hover {
+            border-color: #ffffff;
+            color: #ffffff;
+        }
+
+        .slider-row {
+            margin-bottom: 14px;
+        }
+
+        .slider-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.84rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .slider-val-badge {
+            background-color: #1a1a1f;
+            border: 1px solid var(--border-strong);
+            color: #ffffff;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .slider-row input[type="range"] {
+            width: 100%;
+            accent-color: #ffffff;
+            cursor: pointer;
+        }
+
+        .slider-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .toggle-row:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .toggle-info strong {
+            display: block;
+            font-size: 0.86rem;
+            color: #ffffff;
+        }
+
+        .toggle-info span {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .orca-switch {
+            position: relative;
+            display: inline-block;
+            width: 42px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .orca-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .orca-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #222226;
+            border-radius: 99px;
+            transition: 0.25s;
+        }
+
+        .orca-slider::before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #9ca3af;
+            border-radius: 50%;
+            transition: 0.25s;
+        }
+
+        .orca-switch input:checked + .orca-slider {
+            background-color: #ffffff;
+        }
+
+        .orca-switch input:checked + .orca-slider::before {
+            transform: translateX(18px);
+            background-color: #050505;
+        }
+
+        .chips-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .chip-toggle {
+            background-color: #141418;
+            border: 1px solid var(--border-strong);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: left;
+        }
+
+        .chip-toggle.active {
+            background-color: #ffffff;
+            color: #050505;
+            border-color: #ffffff;
+        }
+
+        .logo-upload-box {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background-color: #111115;
+            border: 1px dashed var(--border-strong);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+        }
+
+        .logo-preview {
+            width: 54px;
+            height: 54px;
+            border-radius: 10px;
+            background-color: #222226;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .logo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        input, select, textarea {
+            font-size: 16px !important;
+        }
+
+        /* RESPONSIVIDADE MOBILE & TABLET */
+        @media (max-width: 920px) {
+            .topbar {
+                padding: 12px 16px;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .topbar-left,
+            .topbar-right {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .empresa-select {
+                flex: 1;
+                min-width: 140px;
+            }
+
+            .studio-telemetry-bar {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .weather-hero-banner {
+                width: calc(100% - 32px);
+                margin: 14px 16px 0;
+                padding: 20px;
+            }
+
+            .dashboard-container {
+                width: 100%;
+                margin: 16px auto;
+                padding: 0 16px 48px;
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .left-column,
+            .right-column,
+            .card {
+                min-width: 0;
+                width: 100%;
+                padding: 16px;
+            }
+
+            .announce-form {
+                flex-direction: column;
+            }
+
+            .voice-selector-bar select,
+            .announce-form input,
+            .search-bar input {
+                width: 100%;
+            }
+
+            .player-controls {
+                justify-content: space-between;
+            }
+
+            .btn-play-main {
+                flex: 1;
+                text-align: center;
+            }
+
+            .volume-control {
+                width: 100%;
+                margin-left: 0;
+                margin-top: 6px;
+            }
+
+            .studio-tabs-nav {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .albums-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="ocean-bg-canvas"></canvas>
+
+    <!-- BARRA SUPERIOR (TOPBAR) -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <a href="index.html" class="brand-logo">
+                <img src="logo-orca.jpg" alt="Logo" class="brand-logo-img">
+                Orca<span>Sonora</span>
+            </a>
+            <span class="divider">|</span>
+            <select id="seletor-empresa" class="empresa-select">
+                <option value="">Carregando sua rádio...</option>
+            </select>
+        </div>
+
+        <div class="topbar-right">
+            <div class="studio-telemetry-bar" id="widget-clima-hora">
+                <div class="telemetry-group">
+                    <div>
+                        <div class="telemetry-time" id="relogio-hora">--:--:--</div>
+                        <div class="telemetry-date" id="relogio-data">Carregando...</div>
+                    </div>
+                </div>
+
+                <div class="telemetry-divider"></div>
+
+                <div class="telemetry-weather">
+                    <div>
+                        <div class="weather-temp" id="clima-temp">--°C</div>
+                        <div class="weather-city" id="clima-cidade" style="cursor: pointer; text-decoration: underline;">Goiânia</div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" id="btn-instalar-pwa" class="btn-secondary" style="display: none; padding: 7px 12px; font-size: 0.8rem;">📲 Instalar App</button>
+            <span class="badge-trial" id="badge-plano">Plano Lite • Trial 7 dias</span>
+            <a href="index.html" class="btn-sair">← Voltar ao site</a>
+        </div>
+    </header>
+
+    <!-- BANNER DE CLIMA COM NUVENS PASSANDO -->
+    <section class="weather-hero-banner modo-noite" id="banner-clima-ceu">
+        <div class="sky-celestial" id="icone-astro-ceu">🌙</div>
+
+        <div class="clouds-layer">
+            <div class="cloud c1"></div>
+            <div class="cloud c2"></div>
+            <div class="cloud c3"></div>
+        </div>
+
+        <div class="weather-hero-content">
+            <div class="weather-greeting-row">
+                <span id="saudacao-periodo">Boa noite</span>
+                <span id="banner-clima-icone">☁️</span>
+                <strong id="banner-clima-temp">--°C</strong>
+            </div>
+
+            <div class="weather-store-row">
+                <div class="weather-store-icon" id="banner-loja-logo">
+                    <img src="logo-orca.jpg" alt="Logo">
+                </div>
+                <div class="weather-store-info">
+                    <h2 id="banner-loja-nome">Sua Rádio Indoor</h2>
+                    <span class="weather-store-location" id="banner-clima-cidade" title="Clique para alterar a cidade">
+                        📍 Goiânia
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GRID PRINCIPAL -->
+    <main class="dashboard-container">
+
+        <!-- COLUNA ESQUERDA: PLAYER COM ONDAS + AVISO + CATÁLOGO -->
+        <section class="left-column">
+            
+            <!-- PLAYER PRINCIPAL COM EQUALIZADOR VISUAL -->
+            <div class="card player-card" id="card-player-container">
+                <div class="player-status-bar">
+                    <span class="status-indicator" id="radio-status">
+                        <span class="dot"></span> Pronta para tocar
+                    </span>
+                    <span class="next-spot-counter" id="contador-spot">Próximo anúncio em 2 músicas</span>
+                </div>
+
+                <!-- ONDAS SONORAS ANIMADAS (Visualizador Equalizador) -->
+                <div class="soundwave-visualizer" id="soundwave-box">
+                    <div class="soundwave-center-avatar">🐋 Orca Neural Live Audio</div>
+                    <div class="wave-bar" style="height: 18px;"></div>
+                    <div class="wave-bar" style="height: 42px;"></div>
+                    <div class="wave-bar" style="height: 28px;"></div>
+                    <div class="wave-bar" style="height: 65px;"></div>
+                    <div class="wave-bar" style="height: 38px;"></div>
+                    <div class="wave-bar" style="height: 75px;"></div>
+                    <div class="wave-bar" style="height: 45px;"></div>
+                    <div class="wave-bar" style="height: 30px;"></div>
+                    <div class="wave-bar" style="height: 60px;"></div>
+                    <div class="wave-bar" style="height: 50px;"></div>
+                    <div class="wave-bar" style="height: 25px;"></div>
+                    <div class="wave-bar" style="height: 68px;"></div>
+                    <div class="wave-bar" style="height: 35px;"></div>
+                    <div class="wave-bar" style="height: 55px;"></div>
+                    <div class="wave-bar" style="height: 20px;"></div>
+                    <div class="wave-bar" style="height: 45px;"></div>
+                    <div class="wave-bar" style="height: 30px;"></div>
+                </div>
+
+                <div class="now-playing">
+                    <div class="cover-box" id="cover-box"><span id="cover-icon">🐋</span></div>
+                    <div class="song-meta">
+                        <span class="playlist-label" id="playlist-nome">Playlist: Estilo da Casa</span>
+                        <h1 id="musica-titulo">Clique em Play para iniciar a rádio</h1>
+                        <p id="musica-artista">Orca Sonora Auto-DJ</p>
+                    </div>
+                </div>
+
+                <!-- Barra de Progresso -->
+                <div class="progress-wrapper">
+                    <div class="progress-bg" id="barra-progresso-container">
+                        <div class="progress-fill" id="barra-progresso"></div>
+                    </div>
+                    <div class="time-row">
+                        <span id="tempo-atual">0:00</span>
+                        <span id="tempo-total">0:00</span>
+                    </div>
+                </div>
+
+                <!-- Controles de Reprodução -->
+                <div class="player-controls">
+                    <button class="btn-control" id="btn-anterior" title="Faixa anterior">⏮</button>
+                    <button class="btn-play-main" id="btn-play-pause">▶ Iniciar Rádio</button>
+                    <button class="btn-control" id="btn-proxima" title="Próxima faixa">⏭</button>
+
+                    <div class="volume-control">
+                        <span>🔊</span>
+                        <input type="range" id="controle-volume" min="0" max="1" step="0.05" value="0.85">
+                    </div>
+                </div>
+
+                <audio id="audio-player" crossorigin="anonymous" playsinline></audio>
+                <audio id="locutor-player" crossorigin="anonymous" playsinline></audio>
+            </div>
+
+            <!-- AVISO INSTANTÂNEO AO VIVO -->
+            <div class="card live-announce-card">
+                <div class="card-header">
+                    <h2>⚡ Aviso Instantâneo ao Vivo</h2>
+                    <span class="hint">A música abaixa sozinha e o locutor fala na hora</span>
+                </div>
+
+                <div class="voice-selector-bar">
+                    <label for="seletor-voz-ia">🎭 Voz do Locutor IA:</label>
+                    <select id="seletor-voz-ia">
+                        <optgroup label="🎙️ Vozes Masculinas">
+                            <option value="onwK4e9ZLuTAKqWW03F9">Daniel — Masculina Grave (Locutor FM)</option>
+                            <option value="cjVigY5qzO86Huf0OWal">Eric — Amigável e Natural</option>
+                            <option value="iP95p4xoKVk53GoZ742B">Chris — Jovem e Moderna (Barbearia)</option>
+                        </optgroup>
+                        <optgroup label="🎙️ Vozes Femininas">
+                            <option value="Xb7hH8MSUJpSbSDYk0k2">Alice — Clara e Sofisticada (Salão)</option>
+                            <option value="cgSgspJ2msm6clMCkdW9">Jessica — Jovem e Expressiva</option>
+                            <option value="pFZP5JQG7iQjIQuC4Bku">Lily — Suave e Acolhedora (Spa)</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="announce-form">
+                    <input type="text" id="texto-aviso-vivo" placeholder="Ex: Próximo cliente da cadeira 2, pode se dirigir ao atendimento.">
+                    <button class="btn-primary" id="btn-falar-agora" style="flex: 0 0 auto;">🎙️ Falar Agora</button>
+                </div>
+
+                <div class="quick-pills">
+                    <button class="quick-btn" data-msg="Próximo cliente da fila, pode se dirigir à cadeira de atendimento.">+ Chamar próximo</button>
+                    <button class="quick-btn" data-msg="Antes de sair, garanta seu próximo horário na recepção e mantenha o visual em dia.">+ Lembrar agendamento</button>
+                    <button class="quick-btn" data-msg="Gostou do resultado? Todos os produtos usados hoje estão disponíveis na nossa vitrine.">+ Ofertar produtos</button>
+                </div>
+            </div>
+
+            <!-- CATÁLOGO & ÁLBUNS -->
+            <div class="card playlist-card">
+                <div class="card-header">
+                    <h2>🎶 Catálogo & Álbuns da Rádio</h2>
+                    <span id="total-faixas" class="hint">0 faixas na fila</span>
+                </div>
+
+                <div class="search-bar">
+                    <input type="text" id="input-busca-musica" placeholder="Buscar artista, álbum, estilo ou música...">
+                    <button type="button" id="btn-buscar-musica" class="btn-secondary">🔍 Buscar</button>
+                </div>
+
+                <div class="genre-pills">
+                    <button type="button" class="genre-btn active" data-genre="Pop">Pop Hits</button>
+                    <button type="button" class="genre-btn" data-genre="Rock">Rock Barbearia</button>
+                    <button type="button" class="genre-btn" data-genre="Hip-Hop/Rap">Hip-Hop & Trap</button>
+                    <button type="button" class="genre-btn" data-genre="Electronic">Lounge & Salão</button>
+                    <button type="button" class="genre-btn" data-genre="Ambient">Spa & Relax</button>
+                    <button type="button" id="btn-ver-favoritas" class="genre-btn">🤍 Favoritas</button>
+                </div>
+
+                <div>
+                    <h3 class="section-sublabel">💿 Álbuns & Playlists Recomendados</h3>
+                    <div id="grid-albuns" class="albums-grid"></div>
+                </div>
+
+                <h3 id="titulo-fila-atual" class="section-sublabel">🎵 Faixas na Fila</h3>
+                <ul id="lista-musicas" class="track-list"></ul>
+
+                <button type="button" id="btn-carregar-mais" onclick="carregarMaisMusicas()" class="btn-secondary" style="width: 100%; margin-top: 12px; padding: 10px;">
+                    ➕ Carregar mais 50 músicas
+                </button>
+            </div>
+
+        </section>
+
+        <!-- COLUNA DIREITA: ESTÚDIO COM ABAS E SLIDERS -->
+        <aside class="right-column">
+            <div class="card">
+                <div class="studio-tabs-nav">
+                    <button type="button" class="studio-tab-btn active" data-tab="tab-locucao">🎙️ Locução</button>
+                    <button type="button" class="studio-tab-btn" data-tab="tab-anuncios">📢 Anúncios</button>
+                    <button type="button" class="studio-tab-btn" data-tab="tab-perfil">🏪 Perfil</button>
+                    <button type="button" class="studio-tab-btn" data-tab="tab-playlist-ia">✨ Playlist IA</button>
+                </div> 
+                <!-- PAINEL DE ROTEIROS GERADOS PELA IA -->
+<div id="painel-roteiros-gerados" style="margin-top: 20px; background: #0a0a0c; border: 1px solid var(--border-strong); border-radius: 12px; padding: 16px; display: none;">
+    <h3 style="font-size: 0.95rem; color: #ffffff; margin-bottom: 8px;">📋 Roteiros e Frequências Geradas pela IA</h3>
+    <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">Controle de quando cada locução gerada vai entrar na rádio:</p>
+    <div id="lista-roteiros-gerados-ia" style="display: flex; flex-direction: column; gap: 8px;">
+        <!-- Os itens gerados aparecem aqui -->
+    </div>
+</div>
+                <!-- ABA 1: LOCUÇÃO -->
+                <div id="tab-locucao" class="studio-tab-pane active">
+                    <div class="setting-section">
+                        <div class="setting-section-top">
+                            <div>
+                                <h3>A voz</h3>
+                                <p>Quem fala e o tom dela.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Voz padrão do locutor</label>
+                            <select id="locucao-voz-padrao">
+                                <option value="cjVigY5qzO86Huf0OWal" selected>Schedar — Voz equilibrada</option>
+                                <option value="onwK4e9ZLuTAKqWW03F9">Daniel — Grave Rádio FM</option>
+                                <option value="iP95p4xoKVk53GoZ742B">Chris — Jovem e Moderna (Barbearia)</option>
+                                <option value="Xb7hH8MSUJpSbSDYk0k2">Alice — Clara e Sofisticada (Salão)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Estilo de fala</label>
+                            <input type="text" id="locucao-estilo-fala" placeholder="Ex.: animado e jovem, rádio pop FM.">
+                        </div>
+                    </div>
+
+                    <div class="setting-section">
+                        <div class="setting-section-top">
+                            <div>
+                                <h3>Ritmo das locuções</h3>
+                                <p>Frequência e duração das falas.</p>
+                            </div>
+                            <button type="button" class="btn-reset-mini" onclick="restaurarRitmoLocucao()">Restaurar</button>
+                        </div>
+
+                        <div class="slider-row">
+                            <div class="slider-header">
+                                <span>Falar a cada</span>
+                                <span class="slider-val-badge" id="val-falar-cada">3 músicas</span>
+                            </div>
+                            <input type="range" id="range-falar-cada" min="1" max="10" value="3">
+                        </div>
+
+                        <div class="slider-row">
+                            <div class="slider-header">
+                                <span>Duração de cada locução</span>
+                                <span class="slider-val-badge" id="val-duracao-locucao">15 s</span>
+                            </div>
+                            <input type="range" id="range-duracao-locucao" min="5" max="45" step="5" value="15">
+                        </div>
+                    </div>
+
+                    <div class="setting-section">
+                        <div class="setting-section-top">
+                            <div>
+                                <h3>Contexto inteligente</h3>
+                                <p>Informações comentadas pela IA ao vivo.</p>
+                            </div>
+                        </div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <strong>Clima e Temperatura</strong>
+                                <span>Comentar temperatura local e previsão.</span>
+                            </div>
+                            <label class="orca-switch">
+                                <input type="checkbox" id="toggle-contexto-clima" checked>
+                                <span class="orca-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-info"></div>
+                                <strong>Datas comemorativas</strong>
+                                <span>Campanhas sazonais automáticas.</span>
+                            </div>
+                            <label class="orca-switch">
+                                <input type="checkbox" id="toggle-contexto-datas" checked>
+                                <span class="orca-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="setting-section">
+                        <div class="setting-section-top">
+                            <div>
+                                <h3>Mixagem de Áudio (Ducking)</h3>
+                                <p>Como a música abaixa para a voz entrar.</p>
+                            </div>
+                        </div>
+
+                        <div class="slider-row">
+                            <div class="slider-header">
+                                <span>Atenuação da música</span>
+                                <span class="slider-val-badge" id="val-ducking-db">-15 dB</span>
+                            </div>
+                            <input type="range" id="range-ducking-db" min="-30" max="-3" value="-15">
+                        </div>
+                    </div>
+                </div>
+
+               <!-- ABA 2: ANÚNCIOS E IDENTIDADE DA MARCA -->
+                <div id="tab-anuncios" class="studio-tab-pane">
+                    <div class="setting-section">
+                        <div class="setting-section-top">
+                            <div>
+                                <h3>🎙️ Criar Anúncio ou Pílula de Identidade</h3>
+                                <p>Cadastre a história da barbearia, dicas, avisos ou promoções para a IA anunciar automaticamente.</p>
+                            </div>
+                        </div>
+
+                       <form id="form-novo-anuncio" class="spot-form">
+    <div class="form-group">
+        <label>Categoria / Estilo da Mensagem</label>
+        <select id="spot-categoria">
+            <option value="identidade">🏛️ Identidade & História da Casa</option>
+            <option value="dicas">💡 Dica de Cuidado (Barba/Cabelo)</option>
+            <option value="combo">✂️ Combo & Promoção</option>
+            <option value="agendamento">📅 Lembrete de Agendamento</option>
+            <option value="produtos">🛍️ Produtos da Vitrine</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Texto do Roteiro (O que o locutor vai falar)</label>
+        <textarea id="spot-texto" rows="4" placeholder="Ex: Você está na Barbearia Martins. Estamos há mais de 8 anos fazendo o melhor..." required></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>Como a mensagem deve entrar na rádio?</label>
+        <select id="tipo-disparo" onchange="alternarModoDisparo(this.value)">
+            <option value="musicas">A cada X músicas (Ex: a cada 3 músicas)</option>
+            <option value="tempo">Em um minuto exato da música (Ex: aos 01:15)</option>
+        </select>
+    </div>
+
+    <!-- Opção A: A cada X músicas -->
+    <div class="form-group" id="bloco-modo-musicas">
+        <label>Frequência de Músicas</label>
+        <select id="spot-frequencia">
+            <option value="2">A cada 2 músicas</option>
+            <option value="3" selected>A cada 3 músicas</option>
+            <option value="5">A cada 5 músicas</option>
+            <option value="8">A cada 8 músicas</option>
+        </select>
+    </div>
+
+    <!-- Opção B: Minuto e Segundo exato -->
+    <div class="form-group" id="bloco-modo-tempo" style="display: none;">
+        <label>Momento de Entrada na Música (Minuto:Segundo)</label>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="number" id="spot-minuto" min="0" max="10" value="1" style="width: 80px; text-align: center;" placeholder="Min">
+            <span style="color: #fff; font-weight: bold;">:</span>
+            <input type="number" id="spot-segundo" min="0" max="59" value="15" style="width: 80px; text-align: center;" placeholder="Seg">
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="button" class="btn-secondary" id="btn-testar-voz">🔊 Ouvir prévia</button>
+        <button type="submit" class="btn-primary">💾 Salvar na Programação Automática</button>
+    </div>
+</form>
+
+<script>
+    function alternarModoDisparo(modo) {
+        document.getElementById("bloco-modo-musicas").style.display = modo === "musicas" ? "block" : "none";
+        document.getElementById("bloco-modo-tempo").style.display = modo === "tempo" ? "block" : "none";
+    }
+</script>
+
+                            <div class="form-group">
+                                <label>Texto do Roteiro (O que o locutor vai falar)</label>
+                                <textarea id="spot-texto" rows="4" placeholder="Ex: Você está na Barbearia Martins. Estamos há mais de 8 anos fazendo o melhor para nossos clientes, unindo tradição e estilo em cada corte." required></textarea>
+                            </div>
+
+                           <div class="form-group">
+    <label>Momento de Entrada na Música (Minuto:Segundo)</label>
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <input type="number" id="spot-minuto" min="0" max="10" value="1" style="width: 80px; text-align: center;" placeholder="Min">
+        <span style="color: #fff; font-weight: bold;">:</span>
+        <input type="number" id="spot-segundo" min="0" max="59" value="15" style="width: 80px; text-align: center;" placeholder="Seg">
+        <span style="font-size: 0.8rem; color: var(--text-muted);">(Ex: Aos 1 minuto e 15 segundos da música)</span>
+    </div>
+</div>
+
+                            <div class="form-actions">
+                                <button type="button" class="btn-secondary" id="btn-testar-voz">🔊 Ouvir prévia</button>
+                                <button type="submit" class="btn-primary">💾 Salvar na Programação Automática</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="setting-section">
+                        <div class="setting-section-top">
+                            <div>
+                                <h3>📋 Mensagens e Roteiros Ativos na Rádio</h3>
+                                <p>A IA intercala esses conteúdos de forma 100% automática entre as músicas.</p>
+                            </div>
+                        </div>
+                        <div class="spots-list" id="lista-anuncios">
+                            <p class="empty-msg">Nenhum roteiro cadastrado ainda. Crie o primeiro acima!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ABA 3: PERFIL -->
+                <div id="tab-perfil" class="studio-tab-pane">
+                    <form id="form-perfil-negocio">
+                        <div class="setting-section" style="margin-bottom: 16px;">
+                            <div class="setting-section-top">
+                                <div>
+                                    <h3>Identidade da Loja</h3>
+                                </div>
+                            </div>
+
+                            <div class="logo-upload-box">
+                                <div class="logo-preview" id="preview-logo-loja">
+                                    <img src="logo-orca.jpg" alt="Logo">
+                                </div>
+                                <div style="flex: 1;">
+                                    <label style="font-size: 0.8rem; font-weight: 700; display: block; margin-bottom: 4px;">Logomarca do Negócio</label>
+                                    <input type="file" id="input-logo-loja" accept="image/*">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Nome do Estabelecimento</label>
+                                <input type="text" id="perfil-nome-loja" placeholder="Ex: Barbearia Navalha de Ouro">
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Tipo de Negócio</label>
+                                <input type="text" id="perfil-tipo-negocio" placeholder="Ex: Barbearia Clássica, Salão Feminino">
+                            </div>
+                        </div>
+
+                        <div class="setting-section" style="margin-bottom: 16px;">
+                            <div class="setting-section-top">
+                                <div>
+                                    <h3>História e Diferenciais</h3>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Sobre a casa (Serviços e estilo)</label>
+                                <textarea id="perfil-sobre-negocio" rows="3" placeholder="Ex: Especialistas em cortes modernos, barba na toalha quente e ambiente descontraído."></textarea>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Tom do Atendimento</label>
+                                <textarea id="perfil-tom-cuidados" rows="2" placeholder="Ex: Amigável, acolhedor, profissional."></textarea>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="width: 100%; padding: 13px;">💾 Salvar Perfil</button>
+                    </form>
+                </div>
+
+                <!-- ABA 4: PLAYLIST IA -->
+                <div id="tab-playlist-ia" class="studio-tab-pane">
+                    <div class="setting-section">
+                        <div class="setting-section-top">
+                            <div>
+                                <h3>Gerador de Playlist com IA</h3>
+                                <p>Descreva o estilo e gere trilha + locuções automáticas.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>O clima e o estilo da rádio</label>
+                            <textarea id="prompt-playlist-ia" rows="3" placeholder="Ex: Rock clássico e blues suave para barbearia executiva..."></textarea>
+                        </div>
+
+                        <button type="button" class="btn-primary" id="btn-gerar-playlist-ia" style="width: 100%; padding: 13px;">
+                            ✨ Gerar Playlist + Locuções Automáticas
+                        </button>
+                    </div>
+                </div>
+
+            </div> 
+             
+            <!-- NOVO PAINEL: ROTEIROS PRONTOS E PROGRAMAÇÃO DA IA -->
+<div id="painel-roteiros-ia-prontos" style="margin-top: 20px; background: #0a0a0c; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h3 style="font-size: 0.95rem; color: #ffffff; margin: 0;">📋 Roteiros Automáticos da Casa (Programação IA)</h3>
+        <span style="font-size: 0.72rem; background: #22c55e; color: #050505; font-weight: 800; padding: 3px 8px; border-radius: 99px;">SINCRONIZADO</span>
+    </div>
+    <p style="font-size: 0.8rem; color: #a3a3a3; margin-bottom: 14px;">
+        Estes roteiros entram automaticamente entre as músicas (intervalo aleatório de 1 a 4 faixas), sem atropelar a Hora Certa ou seus outros anúncios:
+    </p>
+    <div id="lista-cards-roteiros-ia" style="display: flex; flex-direction: column; gap: 10px;">
+        <!-- Os 5 roteiros e seus tempos de entrada serão exibidos aqui -->
+    </div>
+</div> 
+
+        </aside>
+
+    </main>
+
+    <!-- SDK Supabase e Scripts do Painel -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="painel.js"></script>
+
+    <!-- SCRIPT DE EQUALIZADOR, CLIMA E HORA -->
+    <script>
+        window.orcaClimaAtual = { cidade: "Goiânia", temp: null, desc: "" };
+
+        (function() {
+            function obterSaudacaoEPeriodo() {
+                const hora = new Date().getHours();
+                const isDia = hora >= 6 && hora < 18;
+                let saudacao = "Boa noite";
+                if (hora >= 5 && hora < 12) saudacao = "Bom dia";
+                else if (hora >= 12 && hora < 18) saudacao = "Boa tarde";
+                return { saudacao, isDia };
+            }
+
+            function atualizarRelogioESaudacao() {
+                const agora = new Date();
+                const elHora = document.getElementById("relogio-hora");
+                const elData = document.getElementById("relogio-data");
+
+                if (elHora) {
+                    elHora.textContent = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+                }
+                if (elData) {
+                    elData.textContent = agora.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short" }).replace(".", "");
+                }
+
+                const { saudacao, isDia } = obterSaudacaoEPeriodo();
+                const elSaudacao = document.getElementById("saudacao-periodo");
+                const elBanner = document.getElementById("banner-clima-ceu");
+                const elAstro = document.getElementById("icone-astro-ceu");
+
+                if (elSaudacao) elSaudacao.textContent = saudacao;
+                if (elBanner) {
+                    elBanner.classList.toggle("modo-dia", isDia);
+                    elBanner.classList.toggle("modo-noite", !isDia);
+                }
+                if (elAstro) elAstro.textContent = isDia ? "☀️" : "🌙";
+            }
+
+            async function carregarPrevisao(lat, lon, cidadeNome) {
+                try {
+                    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+                    const data = await res.json();
+                    const temp = Math.round(data.current_weather.temperature);
+                    window.orcaClimaAtual = { cidade: cidadeNome || "Goiânia", temp: temp, desc: "estável" };
+
+                    document.getElementById("clima-temp").textContent = `${temp}°C`;
+                    document.getElementById("clima-cidade").textContent = cidadeNome || "Goiânia";
+                    document.getElementById("banner-clima-temp").textContent = `${temp}°C`;
+                    document.getElementById("banner-clima-cidade").textContent = `📍 ${cidadeName || "Goiânia"}`;
+                } catch (e) {}
+            }
+
+            window.addEventListener("load", () => {
+                atualizarRelogioESaudacao();
+                setInterval(atualizarRelogioESaudacao, 1000);
+                carregarPrevisao(-16.6869, -49.2648, "Goiânia");
+
+                // Ativa a animação das ondas sonoras quando a rádio estiver tocando
+                const audioEl = document.getElementById("audio-player");
+                const cardPlayer = document.getElementById("card-player-container");
+
+                if (audioEl && cardPlayer) {
+                    audioEl.addEventListener("play", () => cardPlayer.classList.add("is-playing"));
+                    audioEl.addEventListener("pause", () => cardPlayer.classList.remove("is-playing"));
+                    audioEl.addEventListener("ended", () => cardPlayer.classList.remove("is-playing"));
+                }
+            });
+
+            if ("serviceWorker" in navigator) {
+                window.addEventListener("load", () => {
+                    navigator.serviceWorker.register("./sw.js").catch(() => {});
+                });
+            }
+        })();
+    </script>
+</body>
+</html>
