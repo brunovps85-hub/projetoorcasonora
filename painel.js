@@ -37,9 +37,14 @@ const audioEl = document.getElementById("audio-player");
 let roteiroJaDisparadoNestaFaixa = false;
 let locutorOcupado = false;
 
+// Tempos fixos em segundos para entrar no meio das músicas: 1:12 (72s), 0:45 (45s), 2:06 (126s)
+const TEMPOS_ENTRADA_MUSICA = [72, 45, 126];
+let indiceTempoMusica = 0;
+let indiceRoteiroMeioMusica = 0;
+
 if (audioEl) {
     audioEl.addEventListener("timeupdate", () => {
-        if (!audioEl.currentTime) return;
+        if (!audioEl.currentTime || emDucking) return;
         const tempoAtualSegundos = Math.floor(audioEl.currentTime);
 
         if (tempoAtualSegundos < 5) {
@@ -48,11 +53,29 @@ if (audioEl) {
 
         if (roteiroJaDisparadoNestaFaixa || locutorOcupado) return;
 
-        const spotParaDisparar = anunciosAtivos.find(s => s.tipo_disparo === "tempo" && Number(s.tempo_disparo) === tempoAtualSegundos);
+        // Define o segundo alvo desta música (alternando entre 1:12, 0:45 e 2:06)
+        const segundoAlvoAtual = TEMPOS_ENTRADA_MUSICA[indiceTempoMusica % TEMPOS_ENTRADA_MUSICA.length];
 
-        if (spotParaDisparar) {
+        // Filtra os roteiros ativos (excluindo apenas a vinheta fixa de abertura, se desejar)
+        const roteirosDisponiveis = anunciosAtivos.filter(s => s.ativo !== false && s.categoria !== "identidade_fixa");
+
+        if (roteirosDisponiveis.length > 0 && tempoAtualSegundos >= segundoAlvoAtual && tempoAtualSegundos <= segundoAlvoAtual + 2) {
             roteiroJaDisparadoNestaFaixa = true;
-            falarComDucking(spotParaDisparar.roteiro_texto, spotParaDisparar.url_audio_ia);
+            locutorOcupado = true;
+
+            const spotEscolhido = roteirosDisponiveis[indiceRoteiroMeioMusica % roteirosDisponiveis.length];
+            
+            // Avança os ponteiros para a próxima música usar o próximo tempo e o próximo roteiro
+            indiceTempoMusica++;
+            indiceRoteiroMeioMusica++;
+
+            // Garante que o nome da barbearia atual do assinante seja falado caso o texto use placeholder
+            const nomeAtual = perfilNegocio.nome || empresaAtual?.nome_empresa || "nossa barbearia";
+            const textoFinal = spotEscolhido.roteiro_texto.replace(/\{nome_empresa\}/gi, nomeAtual);
+
+            falarComDucking(textoFinal, spotEscolhido.url_audio_ia).finally(() => {
+                locutorOcupado = false;
+            });
         }
     });
 }
@@ -784,28 +807,28 @@ function prepararFaixa(indice, autoPlay = true) {
 
 async function gerarAudioElevenLabsComVoz(texto, voiceIdEspecifico) {
     const client = ensureSupabaseClient();
-    if (!client) {
-        throw new Error("Supabase não configurado no painel.");
+    let token = "";
+
+    // Tenta pegar a sessão logada no Supabase (se houver)
+    if (client) {
+        const { data } = await client.auth.getSession();
+        if (data?.session?.access_token) {
+            token = data.session.access_token;
+        }
     }
 
-    // Passo 2: Obtém a sessão ativa do usuário logado no Supabase
-    const { data: { session }, error: sessionError } = await client.auth.getSession();
-    if (sessionError || !session?.access_token) {
-        throw new Error("Faça login para gerar locuções com IA.");
-    }
-
-    // Define a URL do backend (mesma origem /api/tts ou apiBaseUrl se configurado)
     const baseUrl = (window.ORCA_CONFIG && window.ORCA_CONFIG.apiBaseUrl)
         ? window.ORCA_CONFIG.apiBaseUrl.replace(/\/$/, "")
         : "";
 
-    // Passo 3: Envia o token no cabeçalho Authorization: Bearer
+    const headers = { "Content-Type": "application/json" };
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
+
     const response = await fetch(`${baseUrl}/api/tts`, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${session.access_token}`
-        },
+        headers,
         body: JSON.stringify({
             text: texto,
             voiceId: voiceIdEspecifico
@@ -813,16 +836,12 @@ async function gerarAudioElevenLabsComVoz(texto, voiceIdEspecifico) {
     });
 
     if (!response.ok) {
-        let erroJson = {};
-        try {
-            erroJson = await response.json();
-        } catch (_e) {
-            erroJson = {};
-        }
-        throw new Error(erroJson.error || `Erro no servidor ao gerar áudio (${response.status})`);
+        const erroJson = await response.json().catch(() => ({}));
+        throw new Error(erroJson.error || `Servidor recusou gerar TTS: ${response.status}`);
     }
 
     return await response.blob();
+
 } 
 
 async function gerarAudioElevenLabs(texto) {
@@ -1219,26 +1238,37 @@ function iniciarPerfilNegocio() {
     if (formPerfil) {
         formPerfil.addEventListener("submit", async (e) => {
             e.preventDefault();
-            perfilNegocio.nome = document.getElementById("perfil-nome-loja")?.value.trim() || "";
+            const novoNome = document.getElementById("perfil-nome-loja")?.value.trim() || "";
+            perfilNegocio.nome = novoNome;
             perfilNegocio.tipo = document.getElementById("perfil-tipo-negocio")?.value.trim() || "";
             perfilNegocio.sobre = document.getElementById("perfil-sobre-negocio")?.value.trim() || "";
             perfilNegocio.tom = document.getElementById("perfil-tom-cuidados")?.value.trim() || "";
 
             localStorage.setItem("orca_perfil_negocio", JSON.stringify(perfilNegocio));
 
-            if (empresaAtual && perfilNegocio.nome) {
+            if (empresaAtual && novoNome) {
+                empresaAtual.nome_empresa = novoNome;
                 const client = ensureSupabaseClient();
                 if (client) {
                     await client
                         .from("empresas")
-                        .update({ nome_empresa: perfilNegocio.nome })
+                        .update({ nome_empresa: novoNome })
                         .eq("id", empresaAtual.id);
+
+                    await client
+                        .from("anuncios_locucao")
+                        .delete()
+                        .eq("empresa_id", empresaAtual.id)
+                        .eq("categoria", "identidade_fixa");
+
+                    await verificarOuGerarVinhetaFixa();
                 }
+
                 const plName = document.getElementById("playlist-nome");
-                if (plName) plName.textContent = `Rádio Exclusiva: ${perfilNegocio.nome}`;
+                if (plName) plName.textContent = `Rádio Exclusiva: ${novoNome}`;
             }
 
-            alert("✅ Perfil salvo com sucesso!");
+            alert(`✅ Perfil atualizado! O locutor agora falará "${novoNome}".`);
         });
     }
 }
