@@ -24,6 +24,7 @@ let musicasTocadasDesdeUltimoSpot = 0;
 let volumeUsuario = 0.85;
 let emDucking = false;
 let idAnuncioEditando = null;
+let agendadorPorHorarioLock = new Set();
 
 // Referências do DOM
 const audioEl = document.getElementById("audio-player"); 
@@ -1196,6 +1197,46 @@ function preencherCamposPerfil() {
     if (document.getElementById("perfil-tom-cuidados")) document.getElementById("perfil-tom-cuidados").value = perfilNegocio.tom || "";
 }
 
+function iniciarAgendadorPorHorario() {
+    const verificarAgenda = () => {
+        if (!Array.isArray(configEstudio.minutosHora) || configEstudio.minutosHora.length === 0) {
+            return;
+        }
+
+        const agora = new Date();
+        const minutoAtual = agora.getMinutes();
+
+        if (!configEstudio.minutosHora.includes(minutoAtual)) {
+            return;
+        }
+
+        const chave = `${agora.getDate()}-${agora.getHours()}-${minutoAtual}`;
+        if (agendadorPorHorarioLock.has(chave)) {
+            return;
+        }
+
+        agendadorPorHorarioLock.add(chave);
+
+        const agendamentos = (anunciosAtivos || []).filter((item) => item && item.ativo !== false && item.categoria === "agendamento");
+
+        if (agendamentos.length > 0) {
+            const index = Math.abs((agora.getHours() + minutoAtual) % agendamentos.length);
+            const item = agendamentos[index];
+            if (item) {
+                falarComDucking(item.roteiro_texto, item.url_audio_ia || null);
+            }
+            return;
+        }
+
+        if (configEstudio.contextoClima || configEstudio.contextoDatas) {
+            falarComDucking(gerarFraseHoraEClima(), null);
+        }
+    };
+
+    verificarAgenda();
+    setInterval(verificarAgenda, 60000);
+}
+
 /* =================================================================
    GERADOR DE PLAYLIST COM IA + PAINEL DOS 5 ROTEIROS DA BARBEARIA
 ================================================================== */
@@ -1204,12 +1245,12 @@ function obterRoteirosPadraoBarbearia(nomeCasa) {
         {
             titulo: "1. Limpeza de Pele",
             categoria: "dicas",
-            roteiro_texto: `Cuidar da barba e do cabelo é essencial, mas e a pele do rosto? Aqui na ${nomeCasa}, a nossa Limpeza de Pele remove impurezas, cravos e controla a oleosidade, deixando seu rosto renovado e com aquela sensação de frescor. Agende a sua junto com o corte!`
+            roteiro_texto: `Cuidar da barba e do cabelo é essencial, mas e a pele do rosto? Aqui na ${nomeCasa}, a nossa Limpeza de Pele remove impurezas, cravos e controla a oleosidade, deixando seu rosto revitalizado e com acabamento impecável.`
         },
         {
             titulo: "2. Depilação Nasal (com cera)",
             categoria: "dicas",
-            roteiro_texto: `Detalhes que fazem toda a diferença no visual! Nossa depilação nasal é rápida, prática e garante um acabamento impecável e limpo por muito mais tempo. Praticidade e cuidado completo em um só lugar.`
+            roteiro_texto: `Detalhes que fazem toda a diferença no visual! Nossa depilação nasal é rápida, prática e garante um acabamento impecável e limpo por muito mais tempo. Praticidade e conforto em um só passo.`
         },
         {
             titulo: "3. Hidratação para Cabelo",
@@ -1219,12 +1260,12 @@ function obterRoteirosPadraoBarbearia(nomeCasa) {
         {
             titulo: "4. Alinhamento dos Fios (Selagem)",
             categoria: "combo",
-            roteiro_texto: `Quer praticidade para arrumar o cabelo todos os dias? Com o nosso alinhamento dos fios, a famosa selagem, você reduz o volume, elimina o frizz e conquista um cabelo disciplinado e fácil de pentear. Diga adeus ao cabelo rebelde!`
+            roteiro_texto: `Quer praticidade para arrumar o cabelo todos os dias? Com o nosso alinhamento dos fios, a famosa selagem, você reduz o volume, elimina o frizz e conquista um cabelo disciplinado e elegante.`
         },
         {
             titulo: "5. Pigmentação para Barba e Cabelo",
             categoria: "produtos",
-            roteiro_texto: `Quer dar aquela encorpada no visual e disfarçar os fios brancos ou falhas? A nossa pigmentação para barba e cabelo traz um acabamento natural, marcante e cheio de estilo. Realce o seu melhor ângulo!`
+            roteiro_texto: `Quer dar aquela encorpada no visual e disfarçar os fios brancos ou falhas? A nossa pigmentação para barba e cabelo traz um acabamento natural, marcante e cheio de estilo.`
         }
     ];
 }
