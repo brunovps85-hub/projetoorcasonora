@@ -762,7 +762,7 @@ function prepararFaixa(indice, autoPlay = true) {
     if (!faixa) return;
 
     roteiroJaDisparadoNestaFaixa = false;
-
+    audioEl.pause();
     audioEl.src = faixa.url_audio;
     audioEl.volume = emDucking ? 0.15 : volumeUsuario;
 
