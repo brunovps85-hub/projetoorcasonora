@@ -816,9 +816,9 @@ async function gerarAudioElevenLabsComVoz(texto, voiceIdEspecifico) {
         }
     }
 
-    const baseUrl = (window.ORCA_CONFIG && window.ORCA_CONFIG.apiBaseUrl)
-        ? window.ORCA_CONFIG.apiBaseUrl.replace(/\/$/, "")
-        : "";
+window.ORCA_CONFIG = {
+  apiBaseUrl: "https://projetoorcasonora.onrender.com"
+};
 
     const headers = { "Content-Type": "application/json" };
     if (token) {
