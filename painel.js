@@ -816,9 +816,9 @@ async function gerarAudioElevenLabsComVoz(texto, voiceIdEspecifico) {
         }
     }
 
-window.ORCA_CONFIG = {
-  apiBaseUrl: "https://projetoorcasonora.onrender.com"
-};
+const baseUrl = (window.ORCA_CONFIG && window.ORCA_CONFIG.apiBaseUrl)
+        ? window.ORCA_CONFIG.apiBaseUrl.replace(/\/$/, "")
+        : "https://projetoorcasonora.onrender.com";
 
     const headers = { "Content-Type": "application/json" };
     if (token) {
@@ -839,8 +839,8 @@ window.ORCA_CONFIG = {
         throw new Error(erroJson.error || `Servidor recusou gerar TTS: ${response.status}`);
     }
 
-    return await response.blob();
-}
+    return await response.blob(); 
+} 
 
 async function gerarAudioElevenLabs(texto) {
     const seletorLocucao = document.getElementById("locucao-voz-padrao");
